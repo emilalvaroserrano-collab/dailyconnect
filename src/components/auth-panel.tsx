@@ -92,7 +92,7 @@ export function AuthPanel({ mode }: { mode: "login" | "join" }) {
         <h1 className="mt-8 font-display text-4xl">{mode === "join" ? "Create your account" : "Welcome back"}</h1>
         {mode === "join" ? (
           <p className="mt-4 text-sm text-muted">
-            Next you’ll see your sponsor. They give you the code that activates this account.
+            Create your Daily Connect account to access the AI MasterPlan enrollment flow. Your sponsor will provide an activation code after payment.
           </p>
         ) : (
           <p className="mt-4 text-sm text-muted">Use the email or Google account you joined with.</p>
@@ -182,7 +182,7 @@ export function AuthPanel({ mode }: { mode: "login" | "join" }) {
             <>
               New here?{" "}
               <Link to="/join" className="text-teal">
-                Create a desk
+                Join Daily Connect
               </Link>
             </>
           )}

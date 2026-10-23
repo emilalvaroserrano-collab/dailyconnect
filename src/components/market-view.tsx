@@ -24,9 +24,9 @@ export function MarketView({ session }: { session: Session }) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-6 md:px-8">
-      <p className="text-sm text-teal">Affiliate marketplace</p>
-      <h1 className="font-display text-4xl">Products we are allowed to sell</h1>
-      <p className="mt-2 text-sm text-muted">{policy}</p>
+      <p className="text-sm text-teal">Daily Connect · Optional Creator Marketplace</p>
+      <h1 className="font-display text-4xl">Creator marketplace</h1>
+      <p className="mt-2 text-sm text-muted">These optional affiliate products are separate from the AI MasterPlan course. {policy}</p>
       {note ? <p className="mt-3 text-sm text-muted">{note}</p> : null}
       <ul className="mt-6 space-y-4">
         {products.map((product) => (

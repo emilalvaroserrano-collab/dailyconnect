@@ -549,7 +549,7 @@ async function noticesFor(uid: string): Promise<Notice[]> {
 export async function loadDesk(idToken: string): Promise<Desk> {
   const profile = await requireUser(idToken);
   await seedTutorials();
-  const tutorials = orderedTutorials(await rget("/tutorials"));
+  const tutorials = orderedTutorials(await rget("/tutorials")).filter((item) => CATALOG.some((current) => current.id === item.id));
   const today = tutorials[dayIndex(tutorials.length)];
   const progressRaw = await rget<Record<string, unknown>>(`/userProgress/${profile.uid}`);
   const progress = Object.entries(progressRaw ?? {})
@@ -568,6 +568,7 @@ export async function loadDesk(idToken: string): Promise<Desk> {
 
 export async function loadTutorial(idToken: string, tutorialId: string) {
   const profile = await requireMember(idToken);
+  if (!CATALOG.some((item) => item.id === tutorialId)) throw new Error("This lesson is no longer in the current course.");
   const tutorial = await rget<CatalogTutorial>(`/tutorials/${tutorialId}`);
   if (!tutorial) throw new Error("That tutorial is gone.");
   const progress = readProgress(

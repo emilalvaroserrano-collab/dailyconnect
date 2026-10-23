@@ -2,324 +2,549 @@ import type { Lesson, TutorialCard } from "@/lib/types";
 
 export type CatalogTutorial = TutorialCard & { lesson: Lesson };
 
-const lesson = (
-  chapters: Lesson["chapters"],
-  exercises: Lesson["exercises"],
-): Lesson => ({ chapters, exercises });
-
-export const CATALOG_VERSION = 2;
+// Bump when the AI MasterPlan curriculum changes. Legacy lesson records remain
+// in storage for existing learners, but only this curriculum is shown.
+export const CATALOG_VERSION = 3;
 
 export const CATALOG: CatalogTutorial[] = [
   {
-    id: "projects",
-    title: "How to use ChatGPT Projects",
-    description: "Set up ChatGPT Projects so the same instructions and files are there every morning.",
-    difficulty: "Start",
-    durationMin: 22,
-    thumbnail: "/covers/projects.jpg",
-    reel: "/reels/projects.mp4",
-    muxPlaybackId: "",
-    tags: ["ChatGPT", "Setup"],
-    sortOrder: 0,
-    lesson: lesson(
-      [
+    "id": "ai-foundations",
+    "title": "AI Foundations: Start Here",
+    "description": "Understand the tools, the roadmap, and what AI can and cannot do.",
+    "difficulty": "Start",
+    "durationMin": 30,
+    "thumbnail": "/covers/masterplan/ai-foundations.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Foundations"
+    ],
+    "sortOrder": 0,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Create the project",
-          minutes: 7,
-          body: "Open ChatGPT and choose Projects in the sidebar, then New project. Name it the way you would search for it later: the client, the job, and the result, such as 'Northwind weekly brief'. Open Project settings and write custom instructions in three lines. Line one: who the reader is. Line two: what the model must not invent, such as prices, dates, or quotes. Line three: the shape of a finished answer, such as 'five bullets, then one question for me'. Claude Projects uses the same idea under Projects if you work there instead. If you cannot write those three lines, you are not ready to save the chat.",
+          "id": "c1",
+          "title": "Your AI developer roadmap",
+          "minutes": 10,
+          "body": "Start with one practical objective: build a customer booking app. List its users, the main problem, and the outcome. Artificial Intelligence can help generate ideas, text, and code, but you remain responsible for checking factual accuracy, privacy, and reliability. AI MasterPlan follows one loop: idea, prompt, build, test, debug, improve, deploy."
         },
         {
-          id: "c2",
-          title: "Add only the files that matter",
-          minutes: 8,
-          body: "In the project, use Add files. Upload the source of truth: a style guide, a price list, last month's brief. Skip old archives you would not hand a new hire. Start a chat inside that project, not a blank chat, so the instructions stay attached. Ask a question you already know the answer to. If the reply misses the file, the file is too long. Split it into a shorter document and upload that. Do not pile on more instructions to hide a bad file.",
+          "id": "c2",
+          "title": "Understand models and tools",
+          "minutes": 10,
+          "body": "A large language model (LLM) predicts and produces responses from context. A chat assistant is not automatically a production backend. Compare a conversational assistant, an AI coding environment, a database, and an automation service. Learn what each tool does before mixing them."
         },
         {
-          id: "c3",
-          title: "Save one prompt you can reuse",
-          minutes: 7,
-          body: "Pin a starter message at the top of the project chat. It should say the job, the inputs you will paste, and the output format. Tomorrow, paste new notes under that same message. You should get the same shape back. That repeat is the reason to use Projects instead of a fresh chat. If the second day drifts, tighten the third instruction line before you add tools or GPTs.",
-        },
+          "id": "c3",
+          "title": "Set up your learning workspace",
+          "minutes": 10,
+          "body": "Create one workspace for notes, prompts, screenshots, and project versions. Define a sample problem, success criteria, and a list of constraints. Start with a small deliverable you can verify today, not ten apps at once."
+        }
       ],
-      [
-        { id: "e1", prompt: "Write the three custom-instruction lines for a real ChatGPT Project.", hint: "Reader, what not to invent, finished shape." },
-        { id: "e2", prompt: "Name two files you would upload, and one you would leave out.", hint: "Leave out anything you would not hand a new hire." },
-        { id: "e3", prompt: "Draft the reusable starter message in under 80 words.", hint: "Job, inputs, output format." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Write a one-paragraph description of an application you want to build.",
+          "hint": "Mention the target user, pain point, and desired result."
+        },
+        {
+          "id": "e2",
+          "prompt": "Separate your tools into AI, editor, backend, and automation.",
+          "hint": "Know which component owns each responsibility."
+        },
+        {
+          "id": "e3",
+          "prompt": "Define three checks that prove your first app works.",
+          "hint": "Use actions a real user can perform."
+        }
+      ]
+    }
   },
   {
-    id: "cursor",
-    title: "How to use Cursor",
-    description: "Install Cursor, write one rule, and make the editor follow it on the next edit.",
-    difficulty: "Intermediate",
-    durationMin: 26,
-    thumbnail: "/covers/cursor.jpg",
-    reel: "/reels/cursor.mp4",
-    muxPlaybackId: "",
-    tags: ["Cursor", "Coding"],
-    sortOrder: 1,
-    lesson: lesson(
-      [
+    "id": "prompt-engineering",
+    "title": "Prompt Engineering for Builders",
+    "description": "Turn vague ideas into specifications AI can implement and you can verify.",
+    "difficulty": "Start",
+    "durationMin": 35,
+    "thumbnail": "/covers/masterplan/prompt-engineering.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Prompting"
+    ],
+    "sortOrder": 1,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Open the project and the rules file",
-          minutes: 8,
-          body: "Install Cursor from cursor.com and open the folder you actually work in with File, then Open Folder. Cursor reads rules from .cursor/rules in that folder. Create one rule file for one mistake you keep repeating. Write three lines: the bad pattern, the good pattern, and the folders it applies to. A rule that describes your whole taste gets ignored. A rule that forbids one concrete thing gets followed. Use Chat in the side pane only after the rule file is saved.",
+          "id": "c1",
+          "title": "From ideas to requirements",
+          "minutes": 12,
+          "body": "Weak prompt: create a website. Strong prompt: build a mobile-friendly service booking site with service selection, date, confirmation, and an admin view. Specify audience, screens, validation, states, and constraints. Ask for a plan before editing code."
         },
         {
-          id: "c2",
-          title: "Ask for a small edit",
-          minutes: 9,
-          body: "Select the function that went wrong last time. Press Cmd-K or Ctrl-K and ask for one change, not a rewrite of the app. Name the file and the behavior you want. If the edit touches tests and app code for no reason, reject it and narrow the selection. Put shared rules in .cursor/rules at the root. Put a rule that only the tests care about in a rule whose globs match the test folder. If two rules disagree, delete one today.",
+          "id": "c2",
+          "title": "Use structured development prompts",
+          "minutes": 12,
+          "body": "Describe your stack, repository context, file boundaries, intended behavior, acceptance tests, and what must not change. Work in one feature at a time. Ask for assumptions and require the AI to cite which files it modified."
         },
         {
-          id: "c3",
-          title: "Check that the rule fired",
-          minutes: 9,
-          body: "Ask Cursor to do the task that used to go wrong. If it misses, the rule has no example. Paste a six-line before-and-after from your own code into the rule file and ask again. Do not switch models until the example is in the file. Agent mode can edit many files. Use it only when the single-file edit already followed the rule. Rules without an example are wishes.",
-        },
+          "id": "c3",
+          "title": "Review the result like a developer",
+          "minutes": 11,
+          "body": "Do not assume generated code is correct. Check empty forms, bad input, navigation, loading states, permissions, and mobile widths. When something breaks, report the exact error, reproduction steps, and expected behavior before requesting a fix."
+        }
       ],
-      [
-        { id: "e1", prompt: "Turn one review comment into a three-line Cursor rule.", hint: "Bad pattern, good pattern, where it applies." },
-        { id: "e2", prompt: "Say whether that rule is global or limited to one folder.", hint: "If only tests care, do not make it global." },
-        { id: "e3", prompt: "Add a six-line before-and-after from your code.", hint: "Your code, not a toy." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Rewrite a vague website prompt into an implementation-ready brief.",
+          "hint": "Include pages, data, validations, and tests."
+        },
+        {
+          "id": "e2",
+          "prompt": "Write one debugging prompt with steps to reproduce.",
+          "hint": "Actual vs expected result."
+        },
+        {
+          "id": "e3",
+          "prompt": "Create a short acceptance checklist for mobile and desktop.",
+          "hint": "Cover navigation and edge cases."
+        }
+      ]
+    }
   },
   {
-    id: "n8n",
-    title: "How to use n8n with an AI node",
-    description: "Build one n8n workflow: a trigger, an OpenAI or Claude step, and a human approve button.",
-    difficulty: "Intermediate",
-    durationMin: 30,
-    thumbnail: "/covers/n8n.jpg",
-    reel: "/reels/n8n.mp4",
-    muxPlaybackId: "",
-    tags: ["n8n", "Automation"],
-    sortOrder: 2,
-    lesson: lesson(
-      [
+    "id": "vibe-coding",
+    "title": "Vibe Coding: Idea to Working Prototype",
+    "description": "Use AI coding tools without confusing a generated screen for finished software.",
+    "difficulty": "Start",
+    "durationMin": 40,
+    "thumbnail": "/covers/masterplan/vibe-coding.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Vibe Coding"
+    ],
+    "sortOrder": 2,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Start a workflow from one inbox",
-          minutes: 10,
-          body: "In n8n, create a workflow and add the trigger you really have: Gmail Trigger, or a Webhook if a form posts in. Do not add five apps. On paper, write the path: trigger, classify, draft, stop. The stop is the product. Add a Gmail or Slack node that sends the draft to you, not to the customer. A draft that sends itself will embarrass you once, and then you will turn the workflow off.",
+          "id": "c1",
+          "title": "Understand the loop",
+          "minutes": 13,
+          "body": "Choose one AI-assisted development tool and open a project. Build incrementally: one page, one form, one state transition. Review the generated files after each change. Ask why a dependency is needed before adding it."
         },
         {
-          id: "c2",
-          title: "Classify before you draft",
-          minutes: 10,
-          body: "Add an OpenAI node, or an HTTP Request node to the Claude API. The first prompt only returns one label: billing, scheduling, noise, or needs-a-human. Add an IF or Switch node on that label. Only billing and scheduling continue to a second AI node that writes a draft. Noise goes to an archive step. Needs-a-human stops. Constraining the labels is what keeps the workflow small enough to trust. Put 'do not invent prices or dates' in the draft prompt, and tell it to leave a blank when the email did not say.",
+          "id": "c2",
+          "title": "Build and run locally",
+          "minutes": 14,
+          "body": "Have the tool produce a responsive homepage and booking form. Launch the development server, open the actual UI, submit a sample booking, and inspect console errors. A screenshot is not a working app; real clicks and data flow are what matter."
         },
         {
-          id: "c3",
-          title: "Approve, then log the miss",
-          minutes: 10,
-          body: "The last step before anything is sent to a customer is a manual check: you read the draft in Slack or email and you send it yourself. Every time you rewrite a draft, paste the original and your edit into a note. After ten, add the repeated fix to the system prompt on the AI node. Turn the workflow Active only after three real messages pass the check. Automation that never eats its corrections just gets louder.",
-        },
+          "id": "c3",
+          "title": "Debug with evidence",
+          "minutes": 13,
+          "body": "Capture an error message and identify the smallest failing feature. Reproduce it, isolate the cause, update the minimum code, and rerun the test. Commit known-good milestones so you can roll back if the next AI edit breaks the project."
+        }
       ],
-      [
-        { id: "e1", prompt: "Name the n8n trigger and the two labels allowed to draft.", hint: "Everything else waits for you." },
-        { id: "e2", prompt: "Write who reads the draft, and in which app.", hint: "If nobody is named, it will auto-send." },
-        { id: "e3", prompt: "Write the system line that forbids invented prices or dates.", hint: "Say what to do instead: leave a blank." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Build a booking form with a working confirmation state.",
+          "hint": "Do not stop at static UI."
+        },
+        {
+          "id": "e2",
+          "prompt": "Record one failed test and how you fixed it.",
+          "hint": "Include the exact steps."
+        },
+        {
+          "id": "e3",
+          "prompt": "Write your idea-to-deploy checklist.",
+          "hint": "Plan, build, test, debug, deploy."
+        }
+      ]
+    }
   },
   {
-    id: "ollama",
-    title: "How to use Ollama",
-    description: "Install Ollama, pull a small model, and call it from the terminal and a short script.",
-    difficulty: "Start",
-    durationMin: 24,
-    thumbnail: "/covers/ollama.jpg",
-    reel: "/reels/ollama.mp4",
-    muxPlaybackId: "",
-    tags: ["Ollama", "Local"],
-    sortOrder: 3,
-    lesson: lesson(
-      [
+    "id": "frontend-ui",
+    "title": "Build Your First Responsive Website",
+    "description": "Design production-minded interfaces for phones, desktop, and embedded WebViews.",
+    "difficulty": "Start",
+    "durationMin": 45,
+    "thumbnail": "/covers/masterplan/frontend-ui.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Frontend"
+    ],
+    "sortOrder": 3,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Install it and pull one model",
-          minutes: 8,
-          body: "Download Ollama from ollama.com and install it. In the terminal, run ollama pull llama3.2, or another small model that answers on your machine in a few seconds. Do not start with the largest file you can download. Write down the exact name from ollama list. 'The local one' is how you lose a week. Run ollama run llama3.2 and ask one question so you know the app is awake. This loop needs no ChatGPT account. The model stays on your computer.",
+          "id": "c1",
+          "title": "Design the user journey",
+          "minutes": 15,
+          "body": "Map Home, Services, Book, Confirmation, and Profile. Use consistent typography, visible calls to action, accessible labels, and readable contrast. Start with a narrow mobile layout, then expand for desktop."
         },
         {
-          id: "c2",
-          title: "Call the local API",
-          minutes: 8,
-          body: "Ollama listens at http://localhost:11434. From the terminal, POST a JSON prompt to /api/generate with the model name and stream set to false. Then send the same request from a ten-line script in Python or Node. Print the status and the text field. If you wrap it in a framework today, you will not know which layer failed tomorrow. Keep the script boring: input, request, print.",
+          "id": "c2",
+          "title": "Implement real interactions",
+          "minutes": 15,
+          "body": "Build reusable UI components for a service card, booking form, button, and header. Add input validation, disabled and loading states, error messages, and confirmation feedback. Navigation links must lead somewhere real."
         },
         {
-          id: "c3",
-          title: "Know when to leave the machine",
-          minutes: 8,
-          body: "Use Ollama for drafts, sorting, and anything you cannot send to ChatGPT or Claude. It is the wrong tool when you need today's news or a long, careful document. Write that limit as a comment at the top of the script. When the task crosses the limit, call a hosted model on purpose instead of hoping a bigger local download will fix it.",
-        },
+          "id": "c3",
+          "title": "Test mobile behavior",
+          "minutes": 15,
+          "body": "Check a 390-pixel viewport, landscape orientation, on-screen keyboard, safe-area insets, and touch target sizes. Make sure no text or buttons hide beneath bottom navigation. Allow zoom and respect reduced-motion preferences."
+        }
       ],
-      [
-        { id: "e1", prompt: "Write the exact ollama pull command you would run, and why that model is small enough.", hint: "Seconds, not a slideshow." },
-        { id: "e2", prompt: "Sketch the ten-line script: input, request, print.", hint: "No framework. localhost:11434." },
-        { id: "e3", prompt: "Write the comment that says what this model must not do.", hint: "Fresh facts, or a finished long document." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Sketch five screens for a booking app.",
+          "hint": "Focus on the path from discovery to confirmation."
+        },
+        {
+          "id": "e2",
+          "prompt": "Build and validate a mobile booking form.",
+          "hint": "Test empty and invalid values."
+        },
+        {
+          "id": "e3",
+          "prompt": "Audit your app for WebView navigation and safe areas.",
+          "hint": "Check keyboard and bottom-bar overlap."
+        }
+      ]
+    }
   },
   {
-    id: "evals",
-    title: "How to test a prompt before you trust it",
-    description: "Score twenty real examples in a sheet, then rerun them in ChatGPT or Claude.",
-    difficulty: "Advanced",
-    durationMin: 28,
-    thumbnail: "/covers/evals.jpg",
-    reel: "/reels/evals.mp4",
-    muxPlaybackId: "",
-    tags: ["ChatGPT", "Quality"],
-    sortOrder: 4,
-    lesson: lesson(
-      [
+    "id": "backend-apis",
+    "title": "Backend and API Fundamentals",
+    "description": "Connect frontend actions to validated requests and meaningful server responses.",
+    "difficulty": "Intermediate",
+    "durationMin": 45,
+    "thumbnail": "/covers/masterplan/backend-apis.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "APIs"
+    ],
+    "sortOrder": 4,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Build the sheet from real misses",
-          minutes: 9,
-          body: "Open a spreadsheet. Make columns: input, wanted answer, model answer, facts, format, usable. Collect twenty real inputs from the last month, ten that went well and ten that cost you time. Do not invent clever cases. Paste each input into ChatGPT or Claude with the prompt you want to judge, and paste the reply into model answer. Twenty rows is a test. Five rows is a vibe.",
+          "id": "c1",
+          "title": "Know the frontend/backend boundary",
+          "minutes": 15,
+          "body": "The frontend handles presentation and user interaction. The backend verifies requests, applies business rules, and talks to trusted services. Never put secret API keys into browser code or commit them to GitHub."
         },
         {
-          id: "c2",
-          title: "Score with three yes or no checks",
-          minutes: 10,
-          body: "For each row, type 0 or 1 in three columns. Facts: it used only what you gave. Format: it matched the shape you asked for. Usable: a colleague would send it without a rewrite. Average the three. Do not use a ten-point scale. You cannot explain the difference between a 6 and a 7, and the sheet will lie to you. The tool is the spreadsheet. The model is only the thing being scored.",
+          "id": "c2",
+          "title": "Design your first endpoint",
+          "minutes": 15,
+          "body": "Define POST /bookings with validated service, date, and contact fields. Return predictable success and error results. Handle empty input, duplicate bookings, and failures. Log useful errors without logging credentials or personal data."
         },
         {
-          id: "c3",
-          title: "Change one line and rerun",
-          minutes: 9,
-          body: "Edit one line of the prompt. Run the same twenty inputs again in a new chat so old memory does not help. If the average does not move, the edit was taste, not a fix. Keep the winner, date it in the sheet, and delete the loser. A test you do not compare is a diary. When the score is stable, then you can paste that prompt into a Project or an n8n node.",
-        },
+          "id": "c3",
+          "title": "Integrate and test",
+          "minutes": 15,
+          "body": "Call the backend from the UI using a loading state and a clear error message. Test a successful request, validation failure, network failure, and retry behavior. Understand HTTP status codes and request/response JSON."
+        }
       ],
-      [
-        { id: "e1", prompt: "Write five real rows: the input, and the answer you wanted.", hint: "Use misses from this month." },
-        { id: "e2", prompt: "Write your three yes or no checks.", hint: "Facts, format, usable without a rewrite." },
-        { id: "e3", prompt: "Name the single prompt line you would change first.", hint: "One line, then rerun the same rows." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Design a booking API request and response.",
+          "hint": "Specify error cases."
+        },
+        {
+          "id": "e2",
+          "prompt": "Identify what belongs on the server vs client.",
+          "hint": "Keep API secrets out of the browser."
+        },
+        {
+          "id": "e3",
+          "prompt": "Document three tests for your endpoint.",
+          "hint": "Success, invalid input, and unavailable service."
+        }
+      ]
+    }
   },
   {
-    id: "rag",
-    title: "How to use NotebookLM",
-    description: "Load your own sources into NotebookLM and make it cite them or say it does not know.",
-    difficulty: "Intermediate",
-    durationMin: 32,
-    thumbnail: "/covers/rag.jpg",
-    reel: "/reels/rag.mp4",
-    muxPlaybackId: "",
-    tags: ["NotebookLM", "Search"],
-    sortOrder: 5,
-    lesson: lesson(
-      [
+    "id": "database-auth",
+    "title": "Databases, Accounts, and Security",
+    "description": "Store useful application data safely and implement authenticated access.",
+    "difficulty": "Intermediate",
+    "durationMin": 50,
+    "thumbnail": "/covers/masterplan/database-auth.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Database"
+    ],
+    "sortOrder": 5,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Add sources, not a dump",
-          minutes: 10,
-          body: "Open NotebookLM and create a notebook for one job. Use the Add source button for the files a person would actually read: the brief, the policy, the price sheet. Google Docs, PDFs, and copied text all work. Do not upload every archive you have. If a document covers two topics, split it before you upload so the citations stay on one subject. The notebook can only know what you added.",
+          "id": "c1",
+          "title": "Model your information",
+          "minutes": 17,
+          "body": "Design users, services, and bookings with unique IDs and created-at timestamps. Consider ownership and relationships. Avoid storing unnecessary sensitive details. Know the difference between a browser state value and persistent server data."
         },
         {
-          id: "c2",
-          title: "Ask, then open the citation",
-          minutes: 12,
-          body: "Ask a question in the chat. NotebookLM attaches citations to the answer. Click each citation and check that the sentence really says what the answer claims. If you cannot find the sentence, the answer is a guess. Write your own replies the same way when you leave NotebookLM: passage first, answer second, so someone else can check in five seconds. The Audio Overview is a recap, not a source. Do not quote it as the file.",
+          "id": "c2",
+          "title": "Authentication and permissions",
+          "minutes": 17,
+          "body": "Authentication proves who signed in; authorization decides what they may access. A customer should only view their own bookings. Admin permissions must be checked on the backend, not just by hiding a button."
         },
         {
-          id: "c3",
-          title: "Make it stay quiet",
-          minutes: 10,
-          body: "Ask a question you know is not in the sources. A correct notebook says it cannot find that, or answers only from a weak citation you can reject. If it invents a price, a date, or a policy, narrow the sources and ask again with the line: 'If the sources do not say, answer: not in the files.' A tool that cannot say nothing will eventually invent. When you need the same behavior in your own app, this is the test to copy: retrieve, show the sentence, or stay quiet.",
-        },
+          "id": "c3",
+          "title": "Build a secure data workflow",
+          "minutes": 16,
+          "body": "Validate input server-side, use parameterized queries or a safe ORM, handle duplicate requests, and avoid exposing tokens in logs. Test that one user cannot access another user’s records. Back up and recover critical data."
+        }
       ],
-      [
-        { id: "e1", prompt: "List the three sources you would add to one NotebookLM notebook.", hint: "One job. No archives." },
-        { id: "e2", prompt: "Write a question whose citation you could check in five seconds.", hint: "Passage first, answer second." },
-        { id: "e3", prompt: "Write a question that should return 'not in the files.'", hint: "Pick a fact you know is absent." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Define a bookings table and its required columns.",
+          "hint": "Use IDs and timestamps."
+        },
+        {
+          "id": "e2",
+          "prompt": "Write an access rule for customer and admin roles.",
+          "hint": "Authorization must be server-side."
+        },
+        {
+          "id": "e3",
+          "prompt": "Test a cross-user access attempt.",
+          "hint": "It should be rejected."
+        }
+      ]
+    }
   },
   {
-    id: "product",
-    title: "How to make product images in ChatGPT",
-    description: "Use ChatGPT image generation for one object, one light, and a set you would actually post.",
-    difficulty: "Start",
-    durationMin: 20,
-    thumbnail: "/covers/product.jpg",
-    reel: "/reels/product.mp4",
-    muxPlaybackId: "",
-    tags: ["ChatGPT", "Images"],
-    sortOrder: 6,
-    lesson: lesson(
-      [
+    "id": "ai-integration",
+    "title": "Integrate AI into Your App",
+    "description": "Add useful model-powered features with clear boundaries and verification.",
+    "difficulty": "Intermediate",
+    "durationMin": 45,
+    "thumbnail": "/covers/masterplan/ai-integration.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "AI Integration"
+    ],
+    "sortOrder": 6,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Describe the object so it cannot wander",
-          minutes: 6,
-          body: "In ChatGPT, start a new chat and ask for an image. Describe the object as if you were insuring it: material, color, proportion, and what it is not. 'A cup' will change shape every frame. 'A matte stoneware cup, low and wide, no logo, no text' will stay. Generate one image. If the object changes, tighten those words before you chase lighting. Gemini's image tool takes the same kind of description if you are working there. Do not switch tools until one description holds still.",
+          "id": "c1",
+          "title": "Choose a narrow AI feature",
+          "minutes": 15,
+          "body": "Begin with a customer FAQ assistant that can answer from a small, approved knowledge base. Define what it may answer and when it must hand off to a human. Protect customer information and never assume generated output is factual."
         },
         {
-          id: "c2",
-          title: "Keep one light and change the angle",
-          minutes: 7,
-          body: "Pick a single light and repeat it in every prompt: hard light from the left, or a soft window from the right. Change only the angle and the crop. Say that in the prompt: 'same cup, same light, three-quarter view'. Ten frames with ten moods look like a stock site. Ten frames with one light look like one brand. If ChatGPT drifts, reply on the same image with 'keep the object, only change the camera'. Starting a fresh chat starts a fresh object.",
+          "id": "c2",
+          "title": "Create a server-side AI endpoint",
+          "minutes": 15,
+          "body": "Send the user question to a backend handler, keep provider credentials server-side, add timeouts and token limits, and return a structured result. Include loading, retry, and friendly failure states in the UI."
         },
         {
-          id: "c3",
-          title: "Reject before you post",
-          minutes: 7,
-          body: "Throw out extra objects, warped edges, and any text you did not ask for. Do not hide a bad frame in the caption. The set is the frames you would print. Three clean frames beat twelve almosts. Download the keepers from the chat. If you need type on the image, add it later in a normal editor. Image models still misspell words.",
-        },
+          "id": "c3",
+          "title": "Evaluate and improve answers",
+          "minutes": 15,
+          "body": "Create a small test set of real customer questions. Check factual accuracy, privacy, and handoff behavior. Change one prompt or retrieval rule at a time and rerun the test set before launch."
+        }
       ],
-      [
-        { id: "e1", prompt: "Write the insurance description of an object you sell or use.", hint: "Material, color, proportion, no logo, no text." },
-        { id: "e2", prompt: "Name the one light in a sentence you can paste into ChatGPT.", hint: "Direction and hardness. Same object." },
-        { id: "e3", prompt: "List the three reject rules you will enforce before posting.", hint: "Extra objects, warped edges, stray text." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Describe one AI feature and its allowed knowledge.",
+          "hint": "List two things it must refuse to guess."
+        },
+        {
+          "id": "e2",
+          "prompt": "Draw the browser → backend → model → browser flow.",
+          "hint": "Secrets remain server-side."
+        },
+        {
+          "id": "e3",
+          "prompt": "Write five evaluation questions.",
+          "hint": "Include one intentionally unanswerable question."
+        }
+      ]
+    }
   },
   {
-    id: "voice",
-    title: "How to use ChatGPT voice",
-    description: "Turn on voice mode, keep one question at a time, and hand off anything that should not be spoken.",
-    difficulty: "Intermediate",
-    durationMin: 27,
-    thumbnail: "/covers/voice.jpg",
-    reel: "/reels/voice.mp4",
-    muxPlaybackId: "",
-    tags: ["ChatGPT", "Voice"],
-    sortOrder: 7,
-    lesson: lesson(
-      [
+    "id": "business-automation",
+    "title": "Business Automation from Zero",
+    "description": "Connect triggers, data, and actions into dependable workflows.",
+    "difficulty": "Intermediate",
+    "durationMin": 45,
+    "thumbnail": "/covers/masterplan/business-automation.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Automation"
+    ],
+    "sortOrder": 7,
+    "lesson": {
+      "chapters": [
         {
-          id: "c1",
-          title: "Write the first twenty seconds",
-          minutes: 9,
-          body: "Before you tap the voice icon in the ChatGPT app, write the opening as lines, not as a personality. Who you are, why this session exists, and the one question that moves the task forward. Example: 'You are helping me outline today's tutorial. Ask which tool we are covering, then wait.' Paste that into the chat, then start voice. Read your lines out loud. If you run out of breath, the listener will stop. A backstory with no job just chatters.",
+          "id": "c1",
+          "title": "Map a repetitive business process",
+          "minutes": 15,
+          "body": "Start with an intake form. Define the trigger, validated input, required records, notification, and who reviews exceptions. Write the workflow before opening an automation editor."
         },
         {
-          id: "c2",
-          title: "One question, then wait",
-          minutes: 9,
-          body: "Tell voice mode: ask one question, then stop talking. Do not stack questions. Do not fill silence with a second offer. Silence is the person thinking. If it talks over you, interrupt and repeat the rule. Tap the voice button again to end the session when the task is done. You can use the same rule later in a phone agent such as Vapi or ElevenLabs, but learn the pause here first, where you can stop it with a thumb.",
+          "id": "c2",
+          "title": "Build a small automation",
+          "minutes": 15,
+          "body": "Connect form submission to a database record and an internal notification. Add status tracking so retries do not create duplicates. Do not auto-send sensitive or customer-facing decisions without approval."
         },
         {
-          id: "c3",
-          title: "Hand off what should not be spoken",
-          minutes: 9,
-          body: "Payments, medical detail, and anything the person must compare should not be spoken at them. Say so in the instructions: offer to write it in the chat, or tell them to talk to a person. Practice one of those exits out loud before you pick a fancier voice. A pleasant voice on the wrong task is still the wrong task. When the spoken answer matters, copy it into the text thread so you can check it.",
-        },
+          "id": "c3",
+          "title": "Make the workflow reliable",
+          "minutes": 15,
+          "body": "Test missing fields, unavailable services, duplicate submissions, retries, and human escalation. Track failures and recovery. A useful workflow is one that the owner can monitor and fix."
+        }
       ],
-      [
-        { id: "e1", prompt: "Write the first twenty seconds as lines you can read aloud.", hint: "Who, why, one question." },
-        { id: "e2", prompt: "Write the instruction: one question, then wait.", hint: "No second offer." },
-        { id: "e3", prompt: "Name two topics this voice session must hand back to text or a person.", hint: "If they must compare it, don't speak it." },
-      ],
-    ),
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Draw a trigger → action → review automation.",
+          "hint": "Label each system."
+        },
+        {
+          "id": "e2",
+          "prompt": "Define what happens if a request is submitted twice.",
+          "hint": "Avoid duplicated work."
+        },
+        {
+          "id": "e3",
+          "prompt": "Write a failure recovery checklist.",
+          "hint": "Include logging and escalation."
+        }
+      ]
+    }
   },
+  {
+    "id": "ai-agents",
+    "title": "Build a Practical AI Agent",
+    "description": "Create a tool-using support assistant with limits, human oversight, and logs.",
+    "difficulty": "Advanced",
+    "durationMin": 45,
+    "thumbnail": "/covers/masterplan/ai-agents.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "AI Agents"
+    ],
+    "sortOrder": 8,
+    "lesson": {
+      "chapters": [
+        {
+          "id": "c1",
+          "title": "What makes an agent different?",
+          "minutes": 15,
+          "body": "An AI agent can decide which approved tools to call to complete a bounded task. Define goal, available tools, permissions, memory, and stopping conditions. It should never access private data or execute transactions outside authorized scope."
+        },
+        {
+          "id": "c2",
+          "title": "Connect knowledge and actions",
+          "minutes": 15,
+          "body": "Prototype an assistant that answers common questions from approved documentation and can create a draft support ticket. Keep ticket submission behind a human-confirmed action. Save an audit trail without exposing secrets."
+        },
+        {
+          "id": "c3",
+          "title": "Test your agent like a product",
+          "minutes": 15,
+          "body": "Run scenarios for normal requests, ambiguity, malicious instructions, missing records, and human takeover. Measure accuracy, latency, and failed tool calls. Start narrow and expand only when the results are consistent."
+        }
+      ],
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Write an agent specification: goal, tools, limits, handoff.",
+          "hint": "Be precise about permissions."
+        },
+        {
+          "id": "e2",
+          "prompt": "List five test conversations.",
+          "hint": "Include an out-of-scope request."
+        },
+        {
+          "id": "e3",
+          "prompt": "Define when a human must take control.",
+          "hint": "Safety and service quality."
+        }
+      ]
+    }
+  },
+  {
+    "id": "capstone-launch",
+    "title": "Capstone: Build, Test, and Deploy",
+    "description": "Put the entire AI MasterPlan workflow into one working project.",
+    "difficulty": "Advanced",
+    "durationMin": 50,
+    "thumbnail": "/covers/masterplan/capstone-launch.svg",
+    "reel": "",
+    "muxPlaybackId": "",
+    "tags": [
+      "AI MasterPlan",
+      "Capstone"
+    ],
+    "sortOrder": 9,
+    "lesson": {
+      "chapters": [
+        {
+          "id": "c1",
+          "title": "Choose one achievable product",
+          "minutes": 17,
+          "body": "Build either a booking portal, support assistant, or a simple operations dashboard. Define users, screens, schema, integrations, and done criteria. A completed small project is better than a stalled ambitious system."
+        },
+        {
+          "id": "c2",
+          "title": "Quality check and deployment",
+          "minutes": 17,
+          "body": "Test real flows, mobile WebView behavior, server validation, access control, responsive layout, and failure states. Configure environment variables through the deployment provider, never inside frontend source. Deploy to a preview URL before production."
+        },
+        {
+          "id": "c3",
+          "title": "Present your working outcome",
+          "minutes": 16,
+          "body": "Prepare a short demo: the original problem, what the app does, how to use it, how you tested it, and what still needs improvement. Save the code, checklist, and lessons learned as a portfolio-ready case study."
+        }
+      ],
+      "exercises": [
+        {
+          "id": "e1",
+          "prompt": "Build a working capstone with at least one saved record.",
+          "hint": "Demonstrate the end-to-end flow."
+        },
+        {
+          "id": "e2",
+          "prompt": "Perform a mobile and desktop acceptance test.",
+          "hint": "Use real interactions."
+        },
+        {
+          "id": "e3",
+          "prompt": "Write a short project walkthrough.",
+          "hint": "Explain the problem, solution, and constraints."
+        }
+      ]
+    }
+  }
 ];
