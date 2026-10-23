@@ -1,5 +1,4 @@
 import { createRootRoute, HeadContent, Navigate, Outlet, Scripts, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { AuthProvider } from "@/lib/auth/provider";
@@ -10,9 +9,9 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Daily Connect" },
-      { name: "description", content: "One AI tool, taught every morning. ₱550 once." },
+      { name: "description", content: "Daily Connect AI MasterPlan: build real applications with AI, from first prompt to deployment. ₱550 one-time membership." },
       { name: "theme-color", content: "#071018" },
     ],
     links: [
@@ -34,7 +33,6 @@ export const Route = createRootRoute({
         <HeadContent />
       </head>
       <body className="bg-canvas font-sans text-fg">
-        <LockZoom />
         <PreviewHostBridge />
         <AuthProvider>
           <ConnectProvider>
@@ -58,20 +56,3 @@ function HoldInactive() {
   return <Navigate to="/checkout" />;
 }
 
-function LockZoom() {
-  useEffect(() => {
-    const blockGesture = (event: Event) => event.preventDefault();
-    const blockPinch = (event: WheelEvent) => {
-      if (event.ctrlKey) event.preventDefault();
-    };
-    document.addEventListener("gesturestart", blockGesture, { passive: false });
-    document.addEventListener("gesturechange", blockGesture, { passive: false });
-    window.addEventListener("wheel", blockPinch, { passive: false });
-    return () => {
-      document.removeEventListener("gesturestart", blockGesture);
-      document.removeEventListener("gesturechange", blockGesture);
-      window.removeEventListener("wheel", blockPinch);
-    };
-  }, []);
-  return null;
-}
