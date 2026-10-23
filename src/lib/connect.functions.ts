@@ -118,11 +118,25 @@ export const saveProgress = createServerFn({ method: "POST" })
     return save(data);
   });
 
+export const masterGate = createServerFn({ method: "POST" })
+  .validator(z.object({ idToken: token }))
+  .handler(async ({ data }) => {
+    const { masterAccess } = await import("./firebase.server");
+    return masterAccess(data.idToken);
+  });
+
+export const listIssued = createServerFn({ method: "POST" })
+  .validator(z.object({ idToken: token }))
+  .handler(async ({ data }) => {
+    const { listIssuedCodes } = await import("./firebase.server");
+    return listIssuedCodes(data.idToken);
+  });
+
 export const issueCode = createServerFn({ method: "POST" })
-  .validator(z.object({ idToken: token, memberCode: z.string().trim().min(4).max(12) }))
+  .validator(z.object({ idToken: token }))
   .handler(async ({ data }) => {
     const { issueActivationCode } = await import("./firebase.server");
-    return issueActivationCode(data.idToken, data.memberCode);
+    return issueActivationCode(data.idToken);
   });
 
 export const listCodes = createServerFn({ method: "POST" })
@@ -147,10 +161,33 @@ export const getWallet = createServerFn({ method: "POST" })
   });
 
 export const payout = createServerFn({ method: "POST" })
-  .validator(z.object({ idToken: token, amount: z.number().int().min(100).max(1_000_000) }))
+  .validator(
+    z.object({
+      idToken: token,
+      amount: z.number().int().min(100).max(1_000_000),
+      method: z.enum(["gcash", "maya"]),
+      account: z.string().trim().max(24),
+      phone: z.string().trim().max(20),
+      accountName: z.string().trim().min(2).max(80),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requestPayout } = await import("./firebase.server");
-    return requestPayout(data.idToken, data.amount);
+    return requestPayout(data.idToken, data);
+  });
+
+export const listPayouts = createServerFn({ method: "POST" })
+  .validator(z.object({ idToken: token }))
+  .handler(async ({ data }) => {
+    const { listPayoutRequests } = await import("./firebase.server");
+    return listPayoutRequests(data.idToken);
+  });
+
+export const payPayout = createServerFn({ method: "POST" })
+  .validator(z.object({ idToken: token, requestId: z.string().regex(/^payout_\d+$/) }))
+  .handler(async ({ data }) => {
+    const { markPayoutPaid } = await import("./firebase.server");
+    return markPayoutPaid(data.idToken, data.requestId);
   });
 
 export const getNetwork = createServerFn({ method: "POST" })

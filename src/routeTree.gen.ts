@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CreatorRouteImport } from './routes/creator'
 import { Route as DeckRouteImport } from './routes/deck'
@@ -21,13 +22,21 @@ import { Route as ModerateRouteImport } from './routes/moderate'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ApiMediaRouteImport } from './routes/api/media'
+import { Route as CodeCreateRouteImport } from './routes/code/create'
 import { Route as LearnIndexRouteImport } from './routes/learn/index'
 import { Route as LearnTutorialIdRouteImport } from './routes/learn/$tutorialId'
+import { Route as ApiMediaIdRouteImport } from './routes/api/media/$id'
 import { Route as RMemberCodeProductCodeRouteImport } from './routes/r/$memberCode/$productCode'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -85,6 +94,16 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMediaRoute = ApiMediaRouteImport.update({
+  id: '/api/media',
+  path: '/api/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodeCreateRoute = CodeCreateRouteImport.update({
+  id: '/code/create',
+  path: '/code/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LearnIndexRoute = LearnIndexRouteImport.update({
   id: '/learn/',
   path: '/learn/',
@@ -95,6 +114,11 @@ const LearnTutorialIdRoute = LearnTutorialIdRouteImport.update({
   path: '/learn/$tutorialId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMediaIdRoute = ApiMediaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiMediaRoute,
+} as any)
 const RMemberCodeProductCodeRoute = RMemberCodeProductCodeRouteImport.update({
   id: '/r/$memberCode/$productCode',
   path: '/r/$memberCode/$productCode',
@@ -103,6 +127,7 @@ const RMemberCodeProductCodeRoute = RMemberCodeProductCodeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/creator': typeof CreatorRoute
   '/deck': typeof DeckRoute
@@ -114,12 +139,16 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/studio': typeof StudioRoute
   '/wallet': typeof WalletRoute
+  '/api/media': typeof ApiMediaRouteWithChildren
+  '/code/create': typeof CodeCreateRoute
   '/learn/$tutorialId': typeof LearnTutorialIdRoute
   '/learn/': typeof LearnIndexRoute
+  '/api/media/$id': typeof ApiMediaIdRoute
   '/r/$memberCode/$productCode': typeof RMemberCodeProductCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/creator': typeof CreatorRoute
   '/deck': typeof DeckRoute
@@ -131,13 +160,17 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/studio': typeof StudioRoute
   '/wallet': typeof WalletRoute
+  '/api/media': typeof ApiMediaRouteWithChildren
+  '/code/create': typeof CodeCreateRoute
   '/learn/$tutorialId': typeof LearnTutorialIdRoute
   '/learn': typeof LearnIndexRoute
+  '/api/media/$id': typeof ApiMediaIdRoute
   '/r/$memberCode/$productCode': typeof RMemberCodeProductCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/creator': typeof CreatorRoute
   '/deck': typeof DeckRoute
@@ -149,14 +182,18 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/studio': typeof StudioRoute
   '/wallet': typeof WalletRoute
+  '/api/media': typeof ApiMediaRouteWithChildren
+  '/code/create': typeof CodeCreateRoute
   '/learn/$tutorialId': typeof LearnTutorialIdRoute
   '/learn/': typeof LearnIndexRoute
+  '/api/media/$id': typeof ApiMediaIdRoute
   '/r/$memberCode/$productCode': typeof RMemberCodeProductCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/checkout'
     | '/creator'
     | '/deck'
@@ -168,12 +205,16 @@ export interface FileRouteTypes {
     | '/profile'
     | '/studio'
     | '/wallet'
+    | '/api/media'
+    | '/code/create'
     | '/learn/$tutorialId'
     | '/learn/'
+    | '/api/media/$id'
     | '/r/$memberCode/$productCode'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/checkout'
     | '/creator'
     | '/deck'
@@ -185,12 +226,16 @@ export interface FileRouteTypes {
     | '/profile'
     | '/studio'
     | '/wallet'
+    | '/api/media'
+    | '/code/create'
     | '/learn/$tutorialId'
     | '/learn'
+    | '/api/media/$id'
     | '/r/$memberCode/$productCode'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/checkout'
     | '/creator'
     | '/deck'
@@ -202,13 +247,17 @@ export interface FileRouteTypes {
     | '/profile'
     | '/studio'
     | '/wallet'
+    | '/api/media'
+    | '/code/create'
     | '/learn/$tutorialId'
     | '/learn/'
+    | '/api/media/$id'
     | '/r/$memberCode/$productCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CheckoutRoute: typeof CheckoutRoute
   CreatorRoute: typeof CreatorRoute
   DeckRoute: typeof DeckRoute
@@ -220,6 +269,8 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   StudioRoute: typeof StudioRoute
   WalletRoute: typeof WalletRoute
+  ApiMediaRoute: typeof ApiMediaRouteWithChildren
+  CodeCreateRoute: typeof CodeCreateRoute
   LearnTutorialIdRoute: typeof LearnTutorialIdRoute
   LearnIndexRoute: typeof LearnIndexRoute
   RMemberCodeProductCodeRoute: typeof RMemberCodeProductCodeRoute
@@ -232,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -311,6 +369,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/media': {
+      id: '/api/media'
+      path: '/api/media'
+      fullPath: '/api/media'
+      preLoaderRoute: typeof ApiMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code/create': {
+      id: '/code/create'
+      path: '/code/create'
+      fullPath: '/code/create'
+      preLoaderRoute: typeof CodeCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/learn/': {
       id: '/learn/'
       path: '/learn'
@@ -325,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnTutorialIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/media/$id': {
+      id: '/api/media/$id'
+      path: '/$id'
+      fullPath: '/api/media/$id'
+      preLoaderRoute: typeof ApiMediaIdRouteImport
+      parentRoute: typeof ApiMediaRoute
+    }
     '/r/$memberCode/$productCode': {
       id: '/r/$memberCode/$productCode'
       path: '/r/$memberCode/$productCode'
@@ -335,8 +414,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiMediaRouteChildren {
+  ApiMediaIdRoute: typeof ApiMediaIdRoute
+}
+
+const ApiMediaRouteChildren: ApiMediaRouteChildren = {
+  ApiMediaIdRoute: ApiMediaIdRoute,
+}
+
+const ApiMediaRouteWithChildren = ApiMediaRoute._addFileChildren(
+  ApiMediaRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CheckoutRoute: CheckoutRoute,
   CreatorRoute: CreatorRoute,
   DeckRoute: DeckRoute,
@@ -348,6 +440,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   StudioRoute: StudioRoute,
   WalletRoute: WalletRoute,
+  ApiMediaRoute: ApiMediaRouteWithChildren,
+  CodeCreateRoute: CodeCreateRoute,
   LearnTutorialIdRoute: LearnTutorialIdRoute,
   LearnIndexRoute: LearnIndexRoute,
   RMemberCodeProductCodeRoute: RMemberCodeProductCodeRoute,

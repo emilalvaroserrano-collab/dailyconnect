@@ -514,14 +514,6 @@ function deepEqual(a, b, partial, explicitUndefined) {
 	}
 	return false;
 }
-/**
-* Heuristically detect dynamic import "module not found" errors
-* across major browsers for lazy route component handling.
-*/
-function isModuleNotFoundError(error) {
-	if (typeof error?.message !== "string") return false;
-	return error.message.startsWith("Failed to fetch dynamically imported module") || error.message.startsWith("error loading dynamically imported module") || error.message.startsWith("Importing a module script failed");
-}
 function isPromise(value) {
 	return Boolean(value && typeof value === "object" && typeof value.then === "function");
 }
@@ -3735,11 +3727,6 @@ async function loadServerRoute(router, opts) {
 //#endregion
 //#region node_modules/@tanstack/react-router/dist/esm/utils.js
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
-/**
-* React.use if available (React 19+), undefined otherwise.
-* Use dynamic lookup to avoid Webpack compilation errors with React 18.
-*/
-var reactUse = import_react.use;
 var useLayoutEffect = import_react.useEffect;
 //#endregion
 //#region node_modules/@tanstack/router-core/dist/esm/manifest.js
@@ -7644,45 +7631,6 @@ function createFileRoute(path) {
 		route.isRoot = false;
 		return route;
 	};
-}
-//#endregion
-//#region node_modules/@tanstack/react-router/dist/esm/lazyRouteComponent.js
-/**
-* Wrap a dynamic import to create a route component that supports
-* `.preload()` and friendly reload-on-module-missing behavior.
-*
-* @param importer Function returning a module promise
-* @param exportName Named export to use (default: `default`)
-* @returns A lazy route component compatible with TanStack Router
-* @link https://tanstack.com/router/latest/docs/framework/react/api/router/lazyRouteComponentFunction
-*/
-function lazyRouteComponent(importer, exportName) {
-	let loadPromise;
-	let comp;
-	let error;
-	const load = () => {
-		if (!loadPromise) {
-			error = void 0;
-			loadPromise = importer().then((res) => {
-				comp = res[exportName ?? "default"];
-			}).catch((err) => {
-				loadPromise = void 0;
-				error = err;
-			});
-		}
-		return loadPromise;
-	};
-	const lazyComp = function Lazy(props) {
-		if (error) {
-			if (isModuleNotFoundError(error) && false);
-			throw error;
-		}
-		if (!comp) if (reactUse) reactUse(load());
-		else throw load();
-		return import_react.createElement(comp, props);
-	};
-	lazyComp.preload = load;
-	return lazyComp;
 }
 //#endregion
 //#region node_modules/@tanstack/react-router/dist/esm/not-found.js
@@ -18289,4 +18237,4 @@ var renderRouterToStream = async ({ request, router, responseHeaders, children }
 	}
 };
 //#endregion
-export { isStream as A, _getRenderedMatches as B, useNavigate as C, createStream as D, createPlugin as E, getScriptPreloadAttrs as F, isDangerousProtocol as G, invariant as H, getStylesheetHref as I, isRedirect as J, isPromise as K, resolveManifestAssetLink as L, toCrossJSONStream as M, createInlineCssPlaceholderAsset as N, crossSerializeStream as O, createInlineCssStyleAsset as P, require_react as Q, resolveManifestCssLink as R, Navigate as S, require_jsx_runtime as T, createSieveCache as U, executeRewriteInput as V, decodePath as W, rootRouteId as X, parseRedirect as Y, isNotFound as Z, Outlet as _, disposeSsrResponse as a, createRootRoute as b, replaceSsrResponse as c, GLOBAL_TSR as d, Scripts as f, createRouter as g, RouterProvider as h, defineHandlerCallback as i, toCrossJSONAsync as j, fromJSON as k, stripSsrResponseBody as l, useRouterState as m, require_react_dom as n, isSsrResponse as o, HeadContent as p, dehydrateSsrMatchId as q, bindSsrResponseToRequest as r, normalizeSsrResponse as s, renderRouterToStream as t, createHydrationScripts as u, lazyRouteComponent as v, useRouter as w, Link as x, createFileRoute as y, waitForReason as z };
+export { toCrossJSONAsync as A, executeRewriteInput as B, useRouter as C, crossSerializeStream as D, createStream as E, getStylesheetHref as F, isPromise as G, createSieveCache as H, resolveManifestAssetLink as I, parseRedirect as J, dehydrateSsrMatchId as K, resolveManifestCssLink as L, createInlineCssPlaceholderAsset as M, createInlineCssStyleAsset as N, fromJSON as O, getScriptPreloadAttrs as P, waitForReason as R, useNavigate as S, createPlugin as T, decodePath as U, invariant as V, isDangerousProtocol as W, isNotFound as X, rootRouteId as Y, require_react as Z, Outlet as _, disposeSsrResponse as a, Link as b, replaceSsrResponse as c, GLOBAL_TSR as d, Scripts as f, createRouter as g, RouterProvider as h, defineHandlerCallback as i, toCrossJSONStream as j, isStream as k, stripSsrResponseBody as l, useRouterState as m, require_react_dom as n, isSsrResponse as o, HeadContent as p, isRedirect as q, bindSsrResponseToRequest as r, normalizeSsrResponse as s, renderRouterToStream as t, createHydrationScripts as u, createFileRoute as v, require_jsx_runtime as w, Navigate as x, createRootRoute as y, _getRenderedMatches as z };

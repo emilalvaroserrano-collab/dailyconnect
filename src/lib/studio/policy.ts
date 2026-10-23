@@ -18,7 +18,7 @@ export function screenCopy(title: string, caption: string): ScreenFlag[] {
 
 export function videoIssues(input: { mime: string; durationSec: number; width: number; height: number }) {
   const issues: string[] = [];
-  if (input.mime !== "video/mp4" && input.mime !== "video/webm") issues.push("Use an MP4 or WebM file.");
+  if (!input.mime.startsWith("video/")) issues.push("Use a video file.");
   if (!Number.isFinite(input.durationSec) || input.durationSec < 1 || input.durationSec > 58) {
     issues.push("Video must run between 1 and 58 seconds.");
   }

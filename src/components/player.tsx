@@ -6,7 +6,6 @@ import { useConnect } from "@/lib/connect";
 import { formatClock } from "@/lib/manila";
 import { progressCacheKey } from "@/lib/session";
 import type { Progress, TutorialDetail } from "@/lib/types";
-import { MUX_ENV_KEY } from "@/lib/mux";
 
 export function Player({
   tutorial,
@@ -27,7 +26,6 @@ export function Player({
   const [exercises, setExercises] = useState<string[]>(seed?.exercises ?? []);
   const [completed, setCompleted] = useState(Boolean(seed?.completed));
   const [syncNote, setSyncNote] = useState("");
-  const hlsRef = useRef<{ destroy: () => void } | null>(null);
 
   const spans = useMemo(() => {
     let cursor = 0;
@@ -44,70 +42,8 @@ export function Player({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    let dead = false;
-    let monitored = false;
-    let muxApi: { destroyMonitor: (player: HTMLMediaElement) => void } | null = null;
-
-    const meta = {
-      env_key: MUX_ENV_KEY,
-      player_name: "Desk player",
-      video_id: tutorial.id,
-      video_title: tutorial.title,
-      video_duration: total * 1000,
-      video_stream_type: "on-demand",
-      video_content_type: "episode",
-    };
-
-    void (async () => {
-      const mux = (await import("mux-embed")).default;
-      if (dead) return;
-      muxApi = mux;
-      const player_init_time = mux.utils.now();
-
-      const watch = (extra?: { hlsjs: object; Hls: object }) => {
-        if (dead) return;
-        mux.monitor(video, { ...extra, data: { ...meta, player_init_time } });
-        monitored = true;
-        if (dead) mux.destroyMonitor(video);
-      };
-
-      if (!tutorial.muxPlaybackId) {
-        video.src = tutorial.reel;
-        watch();
-        return;
-      }
-
-      const src = `https://stream.mux.com/${tutorial.muxPlaybackId}.m3u8`;
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = src;
-        watch();
-        return;
-      }
-
-      const { default: Hls } = await import("hls.js");
-      if (dead) return;
-      if (!Hls.isSupported()) {
-        video.src = tutorial.reel;
-        watch();
-        return;
-      }
-      const hls = new Hls();
-      hls.loadSource(src);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.ERROR, () => {
-        video.src = tutorial.reel;
-      });
-      hlsRef.current = hls;
-      watch({ hlsjs: hls, Hls });
-    })();
-
-    return () => {
-      dead = true;
-      if (monitored) muxApi?.destroyMonitor(video);
-      hlsRef.current?.destroy();
-      hlsRef.current = null;
-    };
-  }, [tutorial.id, tutorial.muxPlaybackId, tutorial.reel, tutorial.title, total]);
+    video.src = tutorial.reel;
+  }, [tutorial.id, tutorial.reel]);
 
   useEffect(() => {
     const video = videoRef.current;

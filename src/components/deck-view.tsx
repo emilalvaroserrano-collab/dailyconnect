@@ -170,11 +170,7 @@ export function DeckView({ session, profile }: { session: Session; profile: User
               void (async () => {
                 if (!file) throw new Error("Choose a video to upload.");
                 const meta = await readVideoMeta(file);
-                let mediaUrl = await uploadMemberMedia(session.idToken, file, `dailyConnect/${profile.uid}/${Date.now()}.mp4`);
-                if (!mediaUrl) {
-                  if (file.size > 700_000) throw new Error("Storage refused the file. Trim it under about 700KB and try again.");
-                  mediaUrl = await fileToData(file);
-                }
+                const mediaUrl = await uploadMemberMedia(session.idToken, file, `dailyConnect/${profile.uid}/${Date.now()}.mp4`);
                 await submitPost({
                   data: {
                     idToken: session.idToken,
@@ -255,13 +251,4 @@ export function DeckView({ session, profile }: { session: Session; profile: User
       ) : null}
     </div>
   );
-}
-
-function fileToData(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error("Could not read the file."));
-    reader.readAsDataURL(file);
-  });
 }

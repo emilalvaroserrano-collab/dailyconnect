@@ -1,0 +1,40 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 13,
+      "bodyTextHash": "4080a2793d340bb0eb4dffff6ee7350dc6dc9c15f8255d3b76ea1d7ffe94732b",
+      "bodyTextPrefix": "Daily Connect",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/flow-prod.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 13,
+      "bodyTextHash": "4080a2793d340bb0eb4dffff6ee7350dc6dc9c15f8255d3b76ea1d7ffe94732b",
+      "bodyTextPrefix": "Daily Connect",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/flow-prod-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/flow-prod.json",
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "mobile: body text collapsed (132 -> 13 chars)"
+  ]
+}

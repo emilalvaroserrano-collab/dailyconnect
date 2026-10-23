@@ -3950,6 +3950,33 @@ TwitterAuthProvider.PROVIDER_ID = "twitter.com";
 * limitations under the License.
 */
 /**
+* Changes the type of persistence on the {@link Auth} instance for the currently saved
+* `Auth` session and applies this type of persistence for future sign-in requests, including
+* sign-in with redirect requests.
+*
+* @remarks
+* This makes it easy for a user signing in to specify whether their session should be
+* remembered or not. It also makes it easier to never persist the `Auth` state for applications
+* that are shared by other users or have sensitive data.
+*
+* This method does not work in a Node.js environment or with {@link Auth} instances created with a
+* {@link @firebase/app#FirebaseServerApp}.
+*
+* @example
+* ```javascript
+* setPersistence(auth, browserSessionPersistence);
+* ```
+*
+* @param auth - The {@link Auth} instance.
+* @param persistence - The {@link Persistence} to use.
+* @returns A `Promise` that resolves once the persistence change has completed
+*
+* @public
+*/
+function setPersistence(auth, persistence) {
+	return getModularInstance(auth).setPersistence(persistence);
+}
+/**
 * Signs out the current user.
 *
 * @remarks
@@ -4161,6 +4188,7 @@ var NOT_AVAILABLE_ERROR = _createError("operation-not-supported-in-this-environm
 async function fail() {
 	throw NOT_AVAILABLE_ERROR;
 }
+var browserLocalPersistence = inMemoryPersistence;
 var signInWithPopup = fail;
 AuthImpl.prototype.setPersistence = async () => {};
 /**
@@ -4336,4 +4364,4 @@ function _isEmptyString(input) {
 	return typeof input === "undefined" || input?.length === 0;
 }
 //#endregion
-export { signOut as i, getAuth as n, signInWithPopup as r, GoogleAuthProvider as t };
+export { signInWithPopup as a, setPersistence as i, browserLocalPersistence as n, signOut as o, getAuth as r, GoogleAuthProvider as t };

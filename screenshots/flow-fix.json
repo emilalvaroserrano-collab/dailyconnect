@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 13,
+      "bodyTextHash": "4080a2793d340bb0eb4dffff6ee7350dc6dc9c15f8255d3b76ea1d7ffe94732b",
+      "bodyTextPrefix": "Daily Connect",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/flow-fix.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 132,
+      "bodyTextHash": "304d977a326e522e43f83a54789f4d3c2db5ffb30436f363035d1f48735f1551",
+      "bodyTextPrefix": "Daily Connect Sign in Join A new AI tool, taught before lunch. W",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/flow-fix-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/flow-fix.json"
+}

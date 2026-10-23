@@ -1,6 +1,6 @@
 import { n as __exportAll } from "../_runtime.mjs";
 import { a as _components, c as _registerComponent, d as getApps, f as initializeApp, i as _apps, l as _serverApps, n as SDK_VERSION, o as _getProvider, p as registerVersion, r as _addComponent, s as _isFirebaseServerApp, t as DEFAULT_ENTRY_NAME, u as getApp } from "./@firebase/app+[...].mjs";
-import { i as signOut, n as getAuth, r as signInWithPopup, t as GoogleAuthProvider } from "./firebase__auth.mjs";
+import { a as signInWithPopup, i as setPersistence, n as browserLocalPersistence, o as signOut, r as getAuth, t as GoogleAuthProvider } from "./firebase__auth.mjs";
 //#region node_modules/firebase/app/dist/index.mjs
 var dist_exports$1 = /* @__PURE__ */ __exportAll({
 	SDK_VERSION: () => SDK_VERSION,
@@ -38,7 +38,9 @@ registerVersion("firebase", "13.1.0", "app");
 //#region node_modules/firebase/auth/dist/index.mjs
 var dist_exports = /* @__PURE__ */ __exportAll({
 	GoogleAuthProvider: () => GoogleAuthProvider,
+	browserLocalPersistence: () => browserLocalPersistence,
 	getAuth: () => getAuth,
+	setPersistence: () => setPersistence,
 	signInWithPopup: () => signInWithPopup,
 	signOut: () => signOut
 });

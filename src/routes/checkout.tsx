@@ -1,11 +1,11 @@
 import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo, Splash } from "@/components/shell";
-import { SponsorBar } from "@/components/sponsor-bar";
-import { SponsorContacts, type SponsorCard } from "@/components/contact-icons";
-import { getMySponsor, redeemCode } from "@/lib/connect.functions";
+import { SponsorDetails, type SponsorCard } from "@/components/contact-icons";
+import { getMySponsor, getSponsor, redeemCode } from "@/lib/connect.functions";
 import { useConnect } from "@/lib/connect";
 import { errorText } from "@/lib/manila";
+import { captureReferralFromUrl } from "@/lib/referral-cookie";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -18,15 +18,33 @@ function Checkout() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [sponsor, setSponsor] = useState<Card | null>(null);
+  const [sponsorReady, setSponsorReady] = useState(false);
 
   useEffect(() => {
     if (!session) return;
     let cancel = false;
-    void getMySponsor({ data: { idToken: session.idToken } })
-      .then((next) => {
-        if (!cancel) setSponsor(next);
-      })
-      .catch(() => undefined);
+    void (async () => {
+      try {
+        const mine = await getMySponsor({ data: { idToken: session.idToken } });
+        if (cancel) return;
+        if (mine) {
+          setSponsor(mine);
+          return;
+        }
+      } catch {
+        // Fall through to the referral cookie.
+      }
+      const referral = captureReferralFromUrl();
+      if (!referral) return;
+      try {
+        const card = await getSponsor({ data: { code: referral.code } });
+        if (!cancel && card) setSponsor(card);
+      } catch {
+        // No public sponsor card.
+      }
+    })().finally(() => {
+      if (!cancel) setSponsorReady(true);
+    });
     return () => {
       cancel = true;
     };
@@ -46,7 +64,7 @@ function Checkout() {
 
   return (
     <main className="min-h-dvh bg-canvas">
-      <header className="sticky top-0 z-10 border-b border-line bg-canvas">
+      <header className="sticky top-0 z-10 border-b border-line bg-canvas/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
           <Logo />
           <button
@@ -59,25 +77,16 @@ function Checkout() {
             Log out
           </button>
         </div>
-        {sponsor ? <SponsorContacts card={sponsor} /> : <SponsorBar />}
       </header>
+      {sponsor ? (
+        <SponsorDetails card={sponsor} />
+      ) : sponsorReady ? (
+        <p className="border-b border-line bg-raise px-5 py-4 text-sm text-muted">
+          Open the link your sponsor sent so their phone, Facebook, and WhatsApp show here.
+        </p>
+      ) : null}
       <section className="mx-auto max-w-lg px-5 py-8">
-        <p className="text-sm text-teal">Step 3 of 3</p>
-        <h1 className="mt-1 font-display text-4xl">Enter the code</h1>
-        <ol className="mt-5 space-y-3 text-sm">
-          <li className="flex gap-3 rounded-2xl bg-raise px-3 py-3">
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface text-teal">1</span>
-            <span>Pay your sponsor ₱550 between the two of you. The app does not take the money.</span>
-          </li>
-          <li className="flex gap-3 rounded-2xl bg-raise px-3 py-3">
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface text-teal">2</span>
-            <span>They already bought this code from the admin, also between the two of them. The admin’s contact is not in the app.</span>
-          </li>
-          <li className="flex gap-3 rounded-2xl bg-raise px-3 py-3">
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-teal text-ink">3</span>
-            <span>Type the code your sponsor gives you after you pay them.</span>
-          </li>
-        </ol>
+        <h1 className="font-display text-4xl">Activate your account</h1>
         <form
           className="mt-6 space-y-3"
           onSubmit={(event) => {

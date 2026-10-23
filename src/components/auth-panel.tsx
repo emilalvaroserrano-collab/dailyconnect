@@ -5,7 +5,7 @@ import { Logo } from "@/components/shell";
 import { useConnect } from "@/lib/connect";
 import { googleError, signInWithGoogle } from "@/lib/firebase-client";
 import { errorText } from "@/lib/manila";
-import { captureReferralFromUrl, type ReferralCookie } from "@/lib/referral-cookie";
+import { captureReferralFromUrl } from "@/lib/referral-cookie";
 import type { UserPublic } from "@/lib/types";
 
 function GoogleGlyph() {
@@ -22,9 +22,6 @@ function GoogleGlyph() {
 export function AuthPanel({ mode }: { mode: "login" | "join" }) {
   const navigate = useNavigate();
   const { signInEmail, signUpEmail, adopt } = useConnect();
-  const referralState = useState<ReferralCookie | null>(null);
-  const referral = referralState[0];
-  const setReferral = referralState[1];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,8 +30,8 @@ export function AuthPanel({ mode }: { mode: "login" | "join" }) {
   const [pending, setPending] = useState<"email" | "google" | null>(null);
 
   useEffect(() => {
-    setReferral(captureReferralFromUrl());
-  }, [setReferral]);
+    captureReferralFromUrl();
+  }, []);
 
   function go(profile: UserPublic) {
     void navigate({ to: profile.membershipStatus === "active" ? "/" : "/checkout" });
@@ -87,29 +84,19 @@ export function AuthPanel({ mode }: { mode: "login" | "join" }) {
   }
 
   return (
-    <main className="min-h-dvh bg-canvas px-5 py-8">
-      <div className="mx-auto w-full max-w-md">
+    <main className="min-h-dvh bg-canvas px-5 py-8 md:grid md:place-items-center md:py-16">
+      <div className="mx-auto w-full max-w-md md:rounded-[1.75rem] md:bg-raise md:px-8 md:py-10 md:shadow-float">
         <Link to="/" aria-label="Home">
           <Logo />
         </Link>
         <h1 className="mt-8 font-display text-4xl">{mode === "join" ? "Create your account" : "Welcome back"}</h1>
         {mode === "join" ? (
-          <ol className="mt-4 space-y-2 text-sm text-muted">
-            <li className="rounded-2xl bg-surface px-4 py-3 text-fg">1. Sign up</li>
-            <li className="rounded-2xl bg-raise px-4 py-3">2. Pay your sponsor</li>
-            <li className="rounded-2xl bg-raise px-4 py-3">3. Enter the code</li>
-          </ol>
-        ) : null}
-        <p className="mt-4 text-sm text-muted">
-          {mode === "join"
-            ? "Email or Google, plus your mobile number. Then pay your sponsor directly. The app does not take the ₱550."
-            : "Use the email or Google account you joined with."}
-        </p>
-        {mode === "join" && referral ? (
-          <p className="mt-4 rounded-2xl bg-surface px-4 py-3 text-sm">
-            This link keeps your sponsor for 1 month. You pay them ₱550 between the two of you. They give you a code. The app does not take the money.
+          <p className="mt-4 text-sm text-muted">
+            Next you’ll see your sponsor. They give you the code that activates this account.
           </p>
-        ) : null}
+        ) : (
+          <p className="mt-4 text-sm text-muted">Use the email or Google account you joined with.</p>
+        )}
         <form onSubmit={onEmail} className="mt-6 space-y-3">
           {mode === "join" ? (
             <label className="block text-sm">

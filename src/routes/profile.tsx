@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { FacebookIcon, FieldIcon, PhoneIcon, WhatsAppIcon } from "@/components/contact-icons";
+import { FieldIcon, FacebookIcon, PhoneIcon, SponsorDetails, WhatsAppIcon } from "@/components/contact-icons";
 import { Shell, Splash } from "@/components/shell";
 import { getNetwork, listCodes, place, saveContact } from "@/lib/connect.functions";
 import { useConnect } from "@/lib/connect";
@@ -139,6 +139,17 @@ function ProfilePage() {
             Save contact
           </button>
         </form>
+        <div className="mt-4 overflow-hidden rounded-3xl border border-line">
+          <SponsorDetails
+            card={{
+              name: profile.name,
+              phone: profile.phone || "",
+              facebook: profile.facebook || "",
+              whatsapp: profile.whatsapp || "",
+            }}
+          />
+          <p className="px-5 pb-4 text-sm text-muted">This is what someone sees after they open this account’s link. Saving here does not change a different login.</p>
+        </div>
         <section className="mt-8">
           <h2 className="font-display text-2xl">Your link</h2>
           {profile.referralCode ? (
@@ -155,13 +166,11 @@ function ProfilePage() {
                 Copy link
               </button>
               <p className="mt-3 text-sm text-muted">
-                The first person to open this link keeps you as their sponsor for 1 month. Buy codes from the admin, between the two of you. When a new member pays you ₱550 the same way, give them one code. The app does not take the money. The admin’s contact is not listed here.
+                The first person to open this link keeps you as their sponsor for 1 month. They activate with a code from the admin. That code does not change their sponsor.
               </p>
-              <div className="mt-4">
-                <h3 className="text-sm text-muted">Codes you can sell</h3>
-                {stock.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted">None yet. Buy a code from the admin first.</p>
-                ) : (
+              {stock.length > 0 ? (
+                <div className="mt-4">
+                  <h3 className="text-sm text-muted">Older codes already in your stock</h3>
                   <ul className="mt-2 space-y-2">
                     {stock.map((code) => (
                       <li key={code} className="font-display text-2xl tracking-widest text-teal">
@@ -169,8 +178,8 @@ function ProfilePage() {
                       </li>
                     ))}
                   </ul>
-                )}
-              </div>
+                </div>
+              ) : null}
             </>
           ) : (
             <p className="mt-2 text-sm text-muted">Your code is minted when membership is active.</p>

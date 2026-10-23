@@ -20,6 +20,12 @@ export type UserPublic = {
   sponsorId: string | null;
   placementParentId: string | null;
   walletBalance: number;
+  payoutMethod?: {
+    method: "gcash" | "maya";
+    account: string;
+    phone: string;
+    accountName: string;
+  };
   joinDate: number | null;
   createdAt: number;
 };
@@ -66,7 +72,7 @@ export type WalletTx = {
   userId: string;
   type: "referral_bonus" | "unilevel" | "payout" | "creator_share" | "affiliate_commission" | "adjustment";
   amount: number;
-  status: "posted" | "scheduled" | "requested";
+  status: "posted" | "scheduled" | "requested" | "paid";
   period: string;
   note: string;
   sourceUserId: string | null;
@@ -90,6 +96,9 @@ export type WalletView = {
   directBonus: number;
   accruing: number;
   teamSize: number;
+  accumulated: number;
+  available: number;
+  pendingPayout: number;
 };
 
 export type Recruit = {

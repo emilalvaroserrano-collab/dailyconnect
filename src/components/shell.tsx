@@ -114,12 +114,58 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-frame relative text-fg">
-      <header className="relative z-20 flex shrink-0 flex-col border-b border-line bg-canvas/95 backdrop-blur">
-        <div className="flex items-center justify-between px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <Link to="/" aria-label="Home">
+      <header className="relative z-20 flex shrink-0 flex-col border-b border-line bg-canvas/80 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-8">
+        <Link to="/" aria-label="Home" className="shrink-0">
           <Logo />
         </Link>
-        <div className="flex items-center gap-2">
+        <nav aria-label="Main" className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex">
+          {bottomTabs.map((tab) => (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              activeOptions={{ exact: tab.exact }}
+              className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm text-muted hover:bg-surface hover:text-fg"
+              activeProps={{ className: "inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3 text-sm text-teal" }}
+            >
+              <tab.icon className="size-4" />
+              {tab.label}
+            </Link>
+          ))}
+          <div className="relative">
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm",
+                moreActive || more ? "bg-surface text-teal" : "text-muted",
+              )}
+              aria-expanded={more}
+              aria-label="More"
+              onClick={() => setMore((value) => !value)}
+            >
+              {more ? <X className="size-4" /> : <Menu className="size-4" />}
+              More
+            </button>
+            {more ? (
+              <div className="absolute right-0 top-12 z-30 w-72 rounded-2xl bg-raise p-2 shadow-float">
+                {extra.map((tab) => (
+                  <Link
+                    key={tab.to}
+                    to={tab.to}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-fg"
+                  >
+                    <tab.icon className="size-4 text-teal" />
+                    <span>
+                      <span className="block">{tab.label}</span>
+                      <span className="block text-xs text-muted">{tab.hint}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </nav>
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             className="relative grid size-11 place-items-center rounded-full text-fg"
@@ -174,7 +220,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <SponsorBar />
       </header>
       <div className="app-scroll">{children}</div>
-      <nav aria-label="Main" className="z-20 grid shrink-0 grid-cols-5 border-t border-line bg-canvas pb-[env(safe-area-inset-bottom)]">
+      <nav aria-label="Main" className="z-20 mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))] grid shrink-0 grid-cols-5 rounded-2xl bg-surface/95 shadow-float backdrop-blur-xl md:hidden">
         {bottomTabs.map((tab) => (
           <Link
             key={tab.to}
@@ -202,7 +248,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </button>
       </nav>
       {more ? (
-        <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 rounded-2xl border border-line bg-raise p-2 sm:left-auto sm:w-72">
+        <div className="absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 rounded-2xl bg-raise p-2 shadow-float md:hidden">
           {extra.map((tab) => (
             <Link
               key={tab.to}

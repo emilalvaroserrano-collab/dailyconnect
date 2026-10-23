@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { confirmOrder, loadModeration, moderatePost, recordRevenue } from "@/lib/studio.functions";
-import { issueCode } from "@/lib/connect.functions";
 import { errorText } from "@/lib/manila";
 import type { StudioProduct } from "@/lib/studio/catalog";
 import type { Session } from "@/lib/types";
@@ -30,10 +29,6 @@ export function ModerateView({ session }: { session: Session }) {
   const [gross, setGross] = useState(0);
   const [deductions, setDeductions] = useState(0);
   const [earningStatus, setEarningStatus] = useState<"estimated" | "confirmed">("estimated");
-  const [issued, setIssued] = useState("");
-  const [soldTo, setSoldTo] = useState("");
-  const [sponsorCode, setSponsorCode] = useState("");
-  const [busy, setBusy] = useState(false);
 
   function reload() {
     return loadModeration({ data: { idToken: session.idToken } }).then((result) => {
@@ -67,45 +62,6 @@ export function ModerateView({ session }: { session: Session }) {
         Screening flags are not a legal clearance. Approving creates one publishing job per platform. Those jobs stay unsent until an official TikTok, YouTube, or Facebook account is connected on the server. If you are the only moderator, you may clear your own post; once a second lead exists, you cannot.
       </p>
       {note ? <p className="mt-3 text-sm text-muted">{note}</p> : null}
-      <section className="mt-6 rounded-3xl bg-raise p-4">
-        <h2 className="font-display text-2xl">Sell a code</h2>
-        <p className="mt-2 text-sm text-muted">
-          The sponsor pays you for the code between the two of you. Your contact is not shown in the app. Enter their member code and it lands in their stock to sell.
-        </p>
-        <form
-          className="mt-3 flex flex-wrap gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setBusy(true);
-            void issueCode({ data: { idToken: session.idToken, memberCode: sponsorCode } })
-              .then((result) => {
-                setIssued(result.code);
-                setSoldTo(result.sponsorName);
-                setSponsorCode("");
-                setNote(`Sold to ${result.sponsorName}.`);
-              })
-              .catch((caught) => setNote(errorText(caught)))
-              .finally(() => setBusy(false));
-          }}
-        >
-          <input
-            required
-            value={sponsorCode}
-            onChange={(event) => setSponsorCode(event.target.value.toUpperCase())}
-            placeholder="Sponsor member code"
-            className="h-11 min-w-48 flex-1 rounded-xl border border-line bg-canvas px-3 tracking-widest"
-          />
-          <button type="submit" disabled={busy} className="h-11 rounded-full bg-teal px-4 text-sm font-medium text-ink disabled:opacity-50">
-            {busy ? "Selling…" : "Sell code"}
-          </button>
-        </form>
-        {issued ? (
-          <p className="mt-3 font-display text-3xl tracking-widest text-teal">
-            {issued}
-            {soldTo ? <span className="ml-3 font-sans text-sm tracking-normal text-muted">for {soldTo}</span> : null}
-          </p>
-        ) : null}
-      </section>
       <ul className="mt-6 space-y-4">
         {queue.length === 0 ? <li className="text-sm text-muted">Queue is clear.</li> : null}
         {queue.map((post) => (

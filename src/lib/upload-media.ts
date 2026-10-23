@@ -1,25 +1,37 @@
-import { firebaseConfig } from "@/lib/firebase-config";
-
-export async function uploadMemberMedia(idToken: string, file: File, objectPath: string) {
-  const bucket = firebaseConfig.storageBucket;
-  const name = encodeURIComponent(objectPath);
-  const res = await fetch(
-    `https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${name}`,
-    {
+export async function uploadMemberMedia(idToken: string, file: File, _objectPath: string) {
+  let ticket: Response;
+  try {
+    ticket = await fetch("/api/media", {
       method: "POST",
-      headers: {
-        Authorization: `Firebase ${idToken}`,
-        "Content-Type": file.type || "application/octet-stream",
-      },
-      body: file,
-    },
-  );
-  if (!res.ok) return null;
-  const data = (await res.json()) as { downloadTokens?: string; name?: string };
-  const token = data.downloadTokens?.split(",")[0];
-  if (!token) return null;
-  const stored = encodeURIComponent(data.name || objectPath);
-  return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${stored}?alt=media&token=${token}`;
+      headers: { "x-id-token": idToken },
+    });
+  } catch {
+    throw new Error("The upload did not reach the server. Try again.");
+  }
+  if (!ticket.ok) {
+    const text = (await ticket.text()).trim();
+    throw new Error(text || "Could not start the upload.");
+  }
+  const signed = (await ticket.json()) as {
+    cloudName: string;
+    apiKey: string;
+    timestamp: number;
+    signature: string;
+  };
+  const body = new FormData();
+  body.set("file", file);
+  body.set("api_key", signed.apiKey);
+  body.set("timestamp", String(signed.timestamp));
+  body.set("signature", signed.signature);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${signed.cloudName}/video/upload`, {
+    method: "POST",
+    body,
+  });
+  const data = (await res.json()) as { secure_url?: string; error?: { message?: string } };
+  if (!res.ok || !data.secure_url) {
+    throw new Error(data.error?.message || "Cloudinary refused the video.");
+  }
+  return data.secure_url;
 }
 
 export function readVideoMeta(file: File) {

@@ -92,6 +92,77 @@ export function SponsorContacts({ card }: { card: SponsorCard }) {
   );
 }
 
+export function SponsorDetails({ card }: { card: SponsorCard }) {
+  const rows = [
+    {
+      key: "phone",
+      label: "Phone",
+      value: card.phone,
+      href: card.phone ? `tel:${card.phone}` : "",
+      icon: <PhoneIcon />,
+      tone: "text-[#34C759]",
+      empty: "Not added yet",
+    },
+    {
+      key: "facebook",
+      label: "Facebook",
+      value: card.facebook,
+      href: card.facebook,
+      icon: <FacebookIcon />,
+      tone: "text-[#1877F2]",
+      empty: "Not added yet",
+      external: true,
+    },
+    {
+      key: "whatsapp",
+      label: "WhatsApp",
+      value: card.whatsapp,
+      href: card.whatsapp ? whatsappHref(card.whatsapp) : "",
+      icon: <WhatsAppIcon />,
+      tone: "text-[#25D366]",
+      empty: "Not added yet",
+      external: true,
+    },
+  ];
+
+  return (
+    <section className="border-b border-line bg-raise">
+      <div className="mx-auto max-w-lg px-5 py-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">Your sponsor</p>
+        <p className="mt-1 text-lg font-medium text-fg">{card.name}</p>
+        <ul className="mt-3 space-y-2">
+          {rows.map((row) => (
+            <li key={row.key}>
+              {row.href ? (
+                <a
+                  href={row.href}
+                  target={row.external ? "_blank" : undefined}
+                  rel={row.external ? "noreferrer" : undefined}
+                  className="flex items-center gap-3 rounded-2xl bg-surface px-3 py-3"
+                >
+                  <span className={`grid size-10 shrink-0 place-items-center rounded-full bg-raise ${row.tone}`}>{row.icon}</span>
+                  <span className="min-w-0">
+                    <span className="block text-xs text-muted">{row.label}</span>
+                    <span className="block break-all text-sm text-fg">{row.value}</span>
+                  </span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-3 rounded-2xl bg-surface px-3 py-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-raise text-muted">{row.icon}</span>
+                  <span className="min-w-0">
+                    <span className="block text-xs text-muted">{row.label}</span>
+                    <span className="block text-sm text-muted">{row.empty}</span>
+                  </span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export function FieldIcon({ children }: { children: ReactNode }) {
   return <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface text-fg">{children}</span>;
 }

@@ -23,6 +23,9 @@ function WalletPage() {
   const [view, setView] = useState<WalletView | null>(null);
   const [error, setError] = useState("");
   const [amount, setAmount] = useState(PAYOUT_MIN);
+  const [method, setMethod] = useState<"gcash" | "maya">("gcash");
+  const [account, setAccount] = useState("");
+  const [accountName, setAccountName] = useState("");
   const [note, setNote] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -34,7 +37,13 @@ function WalletPage() {
         if (cancel) return;
         setView(next);
         setProfile(next.profile);
-        setAmount(Math.max(PAYOUT_MIN, next.profile.walletBalance));
+        const saved = next.profile.payoutMethod;
+        if (saved) {
+          setMethod(saved.method);
+          setAccount(saved.account);
+          setAccountName(saved.accountName);
+        }
+        setAmount(next.available >= PAYOUT_MIN ? next.available : PAYOUT_MIN);
       })
       .catch((caught) => {
         if (!cancel) setError(errorText(caught));
@@ -55,8 +64,19 @@ function WalletPage() {
         {error ? <p className="mt-4 text-sm text-teal">{error}</p> : null}
         {view ? (
           <>
-            <p className="mt-6 text-sm text-muted">Available now</p>
-            <p className="font-display text-5xl tabular-nums">{peso(view.profile.walletBalance)}</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-3xl bg-raise p-4">
+                <p className="text-sm text-muted">Total accumulated income</p>
+                <p className="font-display text-4xl tabular-nums">{peso(view.accumulated)}</p>
+              </div>
+              <div className="rounded-3xl bg-raise p-4">
+                <p className="text-sm text-muted">Available for payout</p>
+                <p className="font-display text-4xl tabular-nums">{peso(view.available)}</p>
+                {view.pendingPayout > 0 ? (
+                  <p className="mt-1 text-sm text-muted">{peso(view.pendingPayout)} requested, not paid yet.</p>
+                ) : null}
+              </div>
+            </div>
             <dl className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
               {[
                 ["Direct, paid", String(view.directPaid)],
@@ -74,28 +94,65 @@ function WalletPage() {
               ₱50 from a direct join is available immediately. ₱10 unilevel posts on the 1st (Manila). Line size: {view.teamSize}.
             </p>
             <form
-              className="mt-8 flex flex-col gap-3 sm:flex-row"
+              className="mt-8 space-y-3"
               onSubmit={(event) => {
                 event.preventDefault();
                 if (!session) return;
                 setPending(true);
                 setNote("");
-                void payout({ data: { idToken: session.idToken, amount } })
+                void payout({
+                  data: {
+                    idToken: session.idToken,
+                    amount,
+                    method,
+                    account,
+                    phone: account,
+                    accountName,
+                  },
+                })
                   .then(() => getWallet({ data: { idToken: session.idToken } }))
                   .then((next) => {
                     setView(next);
                     setProfile(next.profile);
-                    setNote("Payout requested. It stays in history until the monthly run.");
+                    setNote("Requested. The balance stays until the admin marks it paid.");
                   })
                   .catch((caught) => setNote(errorText(caught)))
                   .finally(() => setPending(false));
               }}
             >
-              <label className="text-sm">
-                Request payout
+              <p className="text-sm">Payout account</p>
+              <div className="flex gap-2">
+                {(["gcash", "maya"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setMethod(option)}
+                    className={`h-11 rounded-full px-4 text-sm font-medium ${method === option ? "bg-teal text-ink" : "bg-raise text-fg"}`}
+                  >
+                    {option === "gcash" ? "GCash" : "Maya"}
+                  </button>
+                ))}
+              </div>
+              <input
+                required
+                value={account}
+                onChange={(event) => setAccount(event.target.value)}
+                placeholder={method === "gcash" ? "GCash account number" : "Maya account number"}
+                className="h-12 w-full rounded-xl border border-line bg-raise px-3"
+              />
+              <input
+                required
+                value={accountName}
+                onChange={(event) => setAccountName(event.target.value)}
+                placeholder={method === "gcash" ? "GCash account name" : "Maya account name"}
+                className="h-12 w-full rounded-xl border border-line bg-raise px-3"
+              />
+              <label className="block text-sm">
+                Amount
                 <input
                   type="number"
                   min={PAYOUT_MIN}
+                  max={view.available}
                   value={amount}
                   onChange={(event) => setAmount(Number(event.target.value))}
                   className="mt-1 h-12 w-full rounded-xl border border-line bg-raise px-3 sm:w-40"
@@ -103,10 +160,10 @@ function WalletPage() {
               </label>
               <button
                 type="submit"
-                disabled={pending || profile.membershipStatus !== "active"}
-                className="h-12 self-end rounded-full bg-teal px-5 font-medium text-ink disabled:opacity-50"
+                disabled={pending || view.available < PAYOUT_MIN}
+                className="h-12 rounded-full bg-teal px-5 font-medium text-ink disabled:opacity-50"
               >
-                {pending ? "Sending…" : "Request"}
+                {pending ? "Sending…" : "Request payout"}
               </button>
             </form>
             {note ? <p className="mt-3 text-sm text-muted">{note}</p> : null}
@@ -120,11 +177,11 @@ function WalletPage() {
                     <div>
                       <p>{labels[tx.type]}</p>
                       <p className="text-sm text-muted">
-                        {tx.note} · {tx.status === "scheduled" ? "Posts on the 1st" : tx.status}
+                        {tx.note} · {tx.status === "scheduled" ? "Posts on the 1st" : tx.status === "requested" ? "Waiting for admin" : tx.status}
                       </p>
                     </div>
                     <p className="tabular-nums">
-                      {tx.type === "payout" || tx.amount < 0 ? "−" : "+"}
+                      {tx.type === "payout" && tx.status === "paid" ? "−" : tx.type === "payout" ? "" : "+"}
                       {peso(Math.abs(tx.amount))}
                     </p>
                   </li>

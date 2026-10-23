@@ -166,7 +166,16 @@ export default defineConfig(({ command, isPreview }) => ({
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
     grokPwaPlugin(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        codeSplittingOptions: {
+          // Keep each screen in the main bundle. Split route files were
+          // importing that bundle back, and the browser reported it as a
+          // failed fetch of routes-*.js.
+          splitBehavior: () => [],
+        },
+      },
+    }),
     ...(command === "build" || isPreview
       ? [
           nitro({

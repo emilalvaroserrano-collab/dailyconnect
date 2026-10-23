@@ -1,4 +1,9 @@
+import { spawn } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { CATALOG, CATALOG_VERSION } from "@/lib/catalog";
+import { isMasterEmail, MASTER_EMAIL } from "@/lib/master";
 import {
   DIRECT_BONUS,
   firebaseConfig,
@@ -360,17 +365,12 @@ export async function loadMySponsor(idToken: string) {
   return publicSponsorCard(sponsor);
 }
 
-async function isAdmin(uid: string) {
-  return Boolean(await rget<boolean>(`/moderators/${uid}`));
-}
-
 async function publicSponsorCard(sponsor: UserRec) {
-  const admin = await isAdmin(sponsor.uid);
   return {
     name: sponsor.name,
-    phone: admin ? "" : sponsor.phone || "",
-    facebook: admin ? "" : sponsor.facebook || "",
-    whatsapp: admin ? "" : sponsor.whatsapp || "",
+    phone: sponsor.phone || "",
+    facebook: sponsor.facebook || "",
+    whatsapp: sponsor.whatsapp || "",
   };
 }
 
@@ -615,15 +615,133 @@ async function mintCode(uid: string, name: string) {
   throw new Error("Could not mint a referral code. Try again.");
 }
 
-export async function issueActivationCode(idToken: string, memberCode: string) {
-  const admin = await requireMember(idToken);
-  if (!(await isAdmin(admin.uid))) throw new Error("Only the admin can sell activation codes.");
-  const clean = memberCode.trim().toUpperCase();
-  if (!/^[A-Z0-9]{4,12}$/.test(clean)) throw new Error("Enter the sponsor’s member code.");
-  const sponsorId = await rget<string>(`/referralCodes/${clean}`);
-  if (!sponsorId || !uidOk(sponsorId)) throw new Error("No member has that code.");
-  const sponsor = await rget<UserRec>(`/users/${sponsorId}`);
-  if (!sponsor || sponsor.membershipStatus !== "active") throw new Error("That member is not active.");
+export async function saveUploadedVideo(idToken: string, bytes: Uint8Array, mime: string) {
+  const profile = await requireMember(idToken);
+  if (bytes.byteLength < 1000) throw new Error("That file is empty.");
+  if (bytes.byteLength > 80_000_000) throw new Error("That video is too large. Trim it under a minute.");
+  if (mime && !mime.startsWith("video/")) throw new Error("Choose a video file.");
+  const shrunk = await shrinkVideo(bytes);
+  if (shrunk.byteLength > 9_000_000) throw new Error("That video is still too large after compressing. Trim it shorter.");
+  const id = `v${Date.now().toString(36)}${profile.uid.slice(0, 6)}`;
+  await rput(`/mediaFiles/${id}`, {
+    mime: "video/mp4",
+    data: Buffer.from(shrunk).toString("base64"),
+    uid: profile.uid,
+    createdAt: Date.now(),
+  });
+  return { url: `/api/media/${id}` };
+}
+
+export async function readUploadedVideo(id: string) {
+  if (!/^v[a-z0-9]+$/i.test(id)) return null;
+  const row = await rget<{ mime?: string; data?: string }>(`/mediaFiles/${id}`);
+  if (!row?.data) return null;
+  return { mime: row.mime || "video/mp4", data: row.data };
+}
+
+function shrinkVideo(bytes: Uint8Array) {
+  return new Promise<Buffer>((resolve, reject) => {
+    void (async () => {
+      const dir = await mkdtemp(join(tmpdir(), "dc-"));
+      const input = join(dir, "in.bin");
+      const output = join(dir, "out.mp4");
+      try {
+        await writeFile(input, bytes);
+        await new Promise<void>((done, fail) => {
+          const child = spawn("ffmpeg", [
+            "-y",
+            "-i",
+            input,
+            "-t",
+            "58",
+            "-vf",
+            "scale='min(720,iw)':-2",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "32",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "64k",
+            "-movflags",
+            "+faststart",
+            output,
+          ]);
+          child.on("error", fail);
+          child.on("close", (code) => {
+            if (code === 0) done();
+            else fail(new Error("Could not prepare that video. Use an MP4 clip."));
+          });
+        });
+        resolve(await readFile(output));
+      } catch (error) {
+        reject(error);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    })();
+  });
+}
+
+export async function masterAccess(idToken: string) {
+  const who = await verify(idToken);
+  return { email: who.email, allowed: isMasterEmail(who.email) };
+}
+
+type ActivationCodeRec = {
+  code: string;
+  status: "available" | "used";
+  createdAt: number;
+  createdByUid: string;
+  createdByEmail: string;
+  createdByName: string;
+  createdWhere: string;
+  sponsorId: string;
+  sponsorCode: string;
+  sponsorName: string;
+  usedAt: number | null;
+  usedByUid: string | null;
+  usedByName: string | null;
+  usedByEmail: string | null;
+  issuedBy: string;
+  redeemedBy: string | null;
+  redeemedAt: number | null;
+};
+
+async function saveActivationCode(record: ActivationCodeRec) {
+  await rput(`/activationCodes/${record.code}`, record);
+  await rput(`/activationCodeList/${record.code}`, record);
+}
+
+function asCodeRecord(code: string, raw: Partial<ActivationCodeRec> & { issuedBy?: string; redeemedBy?: string | null; redeemedAt?: number | null }): ActivationCodeRec {
+  const usedByUid = raw.usedByUid || raw.redeemedBy || null;
+  const usedAt = raw.usedAt || raw.redeemedAt || null;
+  return {
+    code,
+    status: raw.status === "used" || usedByUid ? "used" : "available",
+    createdAt: raw.createdAt ?? 0,
+    createdByUid: raw.createdByUid || raw.issuedBy || "",
+    createdByEmail: raw.createdByEmail || "",
+    createdByName: raw.createdByName || "",
+    createdWhere: raw.createdWhere || "",
+    sponsorId: raw.sponsorId || "",
+    sponsorCode: raw.sponsorCode || "",
+    sponsorName: raw.sponsorName || "",
+    usedAt,
+    usedByUid,
+    usedByName: raw.usedByName || null,
+    usedByEmail: raw.usedByEmail || null,
+    issuedBy: raw.issuedBy || raw.createdByUid || "",
+    redeemedBy: usedByUid,
+    redeemedAt: usedAt,
+  };
+}
+export async function issueActivationCode(idToken: string) {
+  const who = await verify(idToken);
+  if (!isMasterEmail(who.email)) throw new Error("Only master@dailyconnect.tech can create activation codes.");
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -631,14 +749,26 @@ export async function issueActivationCode(idToken: string, memberCode: string) {
     for (const byte of bytes) code += alphabet[byte % alphabet.length];
     const taken = await rget(`/activationCodes/${code}`);
     if (taken) continue;
-    await rput(`/activationCodes/${code}`, {
-      issuedBy: admin.uid,
-      sponsorId,
+    await saveActivationCode({
+      code,
+      status: "available",
       createdAt: Date.now(),
+      createdByUid: who.uid,
+      createdByEmail: who.email,
+      createdByName: who.name || MASTER_EMAIL,
+      createdWhere: "/code/create",
+      sponsorId: "",
+      sponsorCode: "",
+      sponsorName: "",
+      usedAt: null,
+      usedByUid: null,
+      usedByName: null,
+      usedByEmail: null,
+      issuedBy: who.uid,
       redeemedBy: null,
+      redeemedAt: null,
     });
-    await rput(`/codesBySponsor/${sponsorId}/${code}`, true);
-    return { code, sponsorName: sponsor.name };
+    return { code };
   }
   throw new Error("Could not issue a code. Try again.");
 }
@@ -654,33 +784,75 @@ export async function listSponsorCodes(idToken: string) {
   return { codes };
 }
 
+export async function listIssuedCodes(idToken: string) {
+  const who = await verify(idToken);
+  if (!isMasterEmail(who.email)) throw new Error("Only master@dailyconnect.tech can view activation codes.");
+  const raw = await rget<Record<string, Partial<ActivationCodeRec>>>("/activationCodes");
+  const codes: ActivationCodeRec[] = [];
+  for (const [code, row] of Object.entries(raw ?? {})) {
+    const record = asCodeRecord(code, row ?? {});
+    if (record.createdByUid && !record.createdByEmail) {
+      const creator = await rget<UserRec>(`/users/${record.createdByUid}`);
+      if (creator) {
+        record.createdByEmail = creator.email || "";
+        record.createdByName = record.createdByName || creator.name;
+      }
+    }
+    if (record.sponsorId && !record.sponsorName) {
+      const sponsor = await rget<UserRec>(`/users/${record.sponsorId}`);
+      if (sponsor) record.sponsorName = sponsor.name;
+    }
+    if (record.usedByUid && !record.usedByName) {
+      const member = await rget<UserRec>(`/users/${record.usedByUid}`);
+      if (member) {
+        record.usedByName = member.name;
+        record.usedByEmail = member.email;
+      }
+    }
+    await rput(`/activationCodeList/${code}`, record);
+    codes.push(record);
+  }
+  codes.sort((a, b) => b.createdAt - a.createdAt);
+  return { codes };
+}
+
 export async function redeemActivationCode(input: { idToken: string; code: string }) {
   const profile = await requireUser(input.idToken);
   if (profile.membershipStatus === "active") return profile;
   const code = input.code.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-  if (!/^[A-Z0-9]{8}$/.test(code)) throw new Error("Enter the 8-character code from your sponsor.");
-  const row = await rget<{ sponsorId?: string; issuedBy?: string; createdAt: number; redeemedBy: string | null }>(
-    `/activationCodes/${code}`,
-  );
-  if (!row?.sponsorId) throw new Error("That activation code is not valid.");
-  const sponsorId = row.sponsorId;
-  if (row.redeemedBy) throw new Error("That activation code was already used.");
-  if (profile.sponsorId && profile.sponsorId !== sponsorId) {
-    throw new Error("Buy the code from the sponsor on your link.");
+  if (!/^[A-Z0-9]{8}$/.test(code)) throw new Error("Enter the activation code.");
+  const stored = await rget<Partial<ActivationCodeRec>>(`/activationCodes/${code}`);
+  if (!stored || (!stored.issuedBy && !stored.createdByUid && !stored.createdAt)) {
+    throw new Error("That activation code is not valid.");
   }
-  const sponsor = await rget<UserRec>(`/users/${sponsorId}`);
-  if (!sponsor || sponsor.membershipStatus !== "active") throw new Error("That sponsor is not active.");
-  if (!profile.sponsorId) {
-    await updateUser(profile.uid, (user) => ({ ...user, sponsorId }));
-    await rput(`/bySponsor/${sponsorId}/${profile.uid}`, {
-      name: profile.name,
-      membershipStatus: "inactive",
-      placed: false,
-    });
-  }
+  const record = asCodeRecord(code, stored);
+  if (record.status === "used" || record.redeemedBy) throw new Error("That activation code was already used.");
   const next = await activateMembership(input.idToken);
-  await rput(`/activationCodes/${code}`, { ...row, redeemedBy: profile.uid, redeemedAt: Date.now() });
-  if (row.sponsorId) await rput(`/codesBySponsor/${row.sponsorId}/${code}`, null);
+  const usedAt = Date.now();
+  let sponsorId = record.sponsorId;
+  let sponsorName = record.sponsorName;
+  let sponsorCode = record.sponsorCode;
+  const linkedSponsor = profile.sponsorId;
+  if (!sponsorId && linkedSponsor) {
+    const sponsor = await rget<UserRec>(`/users/${linkedSponsor}`);
+    sponsorId = linkedSponsor;
+    sponsorName = sponsor?.name ?? "";
+    sponsorCode = sponsor?.referralCode ?? "";
+  }
+  await saveActivationCode({
+    ...record,
+    sponsorId,
+    sponsorName,
+    sponsorCode,
+    status: "used",
+    usedAt,
+    usedByUid: profile.uid,
+    usedByName: profile.name,
+    usedByEmail: profile.email,
+    redeemedBy: profile.uid,
+    redeemedAt: usedAt,
+  });
+  if (record.sponsorId) await rput(`/codesBySponsor/${record.sponsorId}/${code}`, null);
   return next;
 }
 
@@ -811,6 +983,12 @@ export async function loadWallet(idToken: string): Promise<WalletView> {
   const accruing = transactions
     .filter((tx) => tx.type === "unilevel" && tx.status === "scheduled")
     .reduce((sum, tx) => sum + tx.amount, 0);
+  const accumulated = transactions
+    .filter((tx) => tx.type !== "payout" && tx.status !== "scheduled" && tx.amount > 0)
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const pendingPayout = transactions
+    .filter((tx) => tx.type === "payout" && tx.status === "requested")
+    .reduce((sum, tx) => sum + tx.amount, 0);
   return {
     profile: fresh,
     transactions,
@@ -821,6 +999,9 @@ export async function loadWallet(idToken: string): Promise<WalletView> {
       .reduce((sum, tx) => sum + tx.amount, 0),
     accruing,
     teamSize: await teamSize(profile.uid),
+    accumulated,
+    available: Math.max(0, Number(fresh.walletBalance) - pendingPayout),
+    pendingPayout,
   };
 }
 
@@ -837,34 +1018,127 @@ async function teamSize(uid: string) {
   return Math.max(0, seen.size - 1);
 }
 
-export async function requestPayout(idToken: string, amount: number) {
+function cleanPayoutAccount(input: {
+  method: "gcash" | "maya";
+  account: string;
+  phone: string;
+  accountName: string;
+}) {
+  const accountName = input.accountName.trim().replace(/\s+/g, " ");
+  if (accountName.length < 2) throw new Error("Enter the account name.");
+  if (input.method === "gcash") {
+    const account = input.account.replace(/\D/g, "");
+    if (account.length < 10 || account.length > 16) throw new Error("Enter the GCash account number.");
+    return { method: input.method, account, phone: account, accountName };
+  }
+  const account = input.account.replace(/\D/g, "");
+  if (account.length < 10 || account.length > 16) throw new Error("Enter the Maya account number.");
+  return { method: input.method, account, phone: account, accountName };
+}
+
+export async function requestPayout(
+  idToken: string,
+  input: { amount: number; method: "gcash" | "maya"; account: string; phone: string; accountName: string },
+) {
   const profile = await requireUser(idToken);
   if (profile.membershipStatus !== "active") throw new Error("Activate membership before requesting a payout.");
-  if (amount < PAYOUT_MIN) throw new Error(`Minimum payout is ₱${PAYOUT_MIN}.`);
-  const next = await updateUser(profile.uid, (user) => {
-    if (user.walletBalance < amount) throw new Error("That is more than your available balance.");
-    return { ...user, walletBalance: user.walletBalance - amount };
-  });
+  if (input.amount < PAYOUT_MIN) throw new Error(`Minimum payout is ₱${PAYOUT_MIN}.`);
+  const payoutMethod = cleanPayoutAccount(input);
+  await settle(profile.uid);
+  const fresh = (await rget<UserRec>(`/users/${profile.uid}`)) ?? profile;
+  const txRaw = await rget<Record<string, WalletTx>>(`/walletTransactions/${profile.uid}`);
+  const pending = Object.values(txRaw ?? {})
+    .filter((tx) => tx?.type === "payout" && tx.status === "requested")
+    .reduce((sum, tx) => sum + Number(tx.amount), 0);
+  if (Number(fresh.walletBalance) - pending < input.amount) {
+    throw new Error("That is more than your available balance.");
+  }
+  const next = await updateUser(profile.uid, (user) => ({ ...user, payoutMethod }));
   const now = Date.now();
-  await rput(`/walletTransactions/${profile.uid}/payout_${now}`, {
+  const requestId = `payout_${now}`;
+  await rput(`/walletTransactions/${profile.uid}/${requestId}`, {
     userId: profile.uid,
     type: "payout",
-    amount,
+    amount: input.amount,
     status: "requested",
     period: manilaPeriod(),
-    note: "Payout requested",
+    note: `${payoutMethod.method === "gcash" ? "GCash" : "Maya"} payout requested. Not paid yet.`,
     sourceUserId: null,
     createdAt: now,
   });
-  await rput(`/notifications/${profile.uid}/payout_${now}`, {
+  await rput(`/payoutRequests/${requestId}`, {
+    id: requestId,
+    uid: profile.uid,
+    name: profile.name,
+    email: profile.email,
+    amount: input.amount,
+    method: payoutMethod.method,
+    account: payoutMethod.account,
+    phone: payoutMethod.phone,
+    accountName: payoutMethod.accountName,
+    status: "requested",
+    createdAt: now,
+    paidAt: null,
+  });
+  await rput(`/notifications/${profile.uid}/${requestId}`, {
     kind: "payout",
     title: "Payout requested",
-    body: `₱${amount} is marked for the monthly payout.`,
+    body: `₱${input.amount} is waiting for the admin to pay it. Your balance is unchanged.`,
     read: false,
     createdAt: now,
   });
   return next;
 }
+
+export async function listPayoutRequests(idToken: string) {
+  const who = await verify(idToken);
+  if (!isMasterEmail(who.email)) throw new Error("Only master@dailyconnect.tech can open payout requests.");
+  const raw = await rget<Record<string, PayoutRequest>>("/payoutRequests");
+  const requests = Object.values(raw ?? {}).sort((a, b) => b.createdAt - a.createdAt);
+  return { requests };
+}
+
+export async function markPayoutPaid(idToken: string, requestId: string) {
+  const who = await verify(idToken);
+  if (!isMasterEmail(who.email)) throw new Error("Only master@dailyconnect.tech can mark a payout paid.");
+  if (!/^payout_\d+$/.test(requestId)) throw new Error("That payout request is not valid.");
+  const request = await rget<PayoutRequest>(`/payoutRequests/${requestId}`);
+  if (!request) throw new Error("That payout request was not found.");
+  if (request.status === "paid") return { requests: (await listPayoutRequests(idToken)).requests };
+  await updateUser(request.uid, (user) => {
+    if (user.walletBalance < request.amount) throw new Error("The balance is lower than this payout.");
+    return { ...user, walletBalance: user.walletBalance - request.amount };
+  });
+  const paidAt = Date.now();
+  await rpatch(`/payoutRequests/${requestId}`, { status: "paid", paidAt });
+  await rpatch(`/walletTransactions/${request.uid}/${requestId}`, {
+    status: "paid",
+    note: `${request.method === "gcash" ? "GCash" : "Maya"} payout paid.`,
+  });
+  await rput(`/notifications/${request.uid}/${requestId}_paid`, {
+    kind: "payout",
+    title: "Payout paid",
+    body: `₱${request.amount} was paid to your ${request.method === "gcash" ? "GCash" : "Maya"} account.`,
+    read: false,
+    createdAt: paidAt,
+  });
+  return listPayoutRequests(idToken);
+}
+
+type PayoutRequest = {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  amount: number;
+  method: "gcash" | "maya";
+  account: string;
+  phone: string;
+  accountName: string;
+  status: "requested" | "paid";
+  createdAt: number;
+  paidAt: number | null;
+};
 
 async function buildTree(uid: string, depth: number): Promise<TreeNode> {
   const user = await rget<UserRec>(`/users/${uid}`);

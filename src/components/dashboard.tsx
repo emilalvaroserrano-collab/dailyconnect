@@ -108,7 +108,7 @@ export function Dashboard() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-6 md:px-8">
       <p className="text-sm text-muted">Good morning{desk.profile.name ? `, ${desk.profile.name.split(" ")[0]}` : ""}.</p>
-      <article className="glass mt-4 overflow-hidden rounded-3xl">
+      <article className="mt-5 overflow-hidden rounded-[1.75rem] bg-raise shadow-float">
         <div className="relative aspect-[16/10] sm:aspect-[16/8]">
           <img src={today.thumbnail} alt="" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/30 to-transparent" />
@@ -148,7 +148,7 @@ export function Dashboard() {
           { to: "/deck", label: "Deck", hint: "Watch or upload", icon: Clapperboard },
           { to: "/studio", label: "Studio", hint: "Make a post", icon: Sparkles },
         ].map((item) => (
-          <Link key={item.to} to={item.to} className="rounded-2xl bg-raise px-3 py-3">
+          <Link key={item.to} to={item.to} className="rounded-2xl bg-raise px-3 py-4 shadow-ring transition-shadow hover:shadow-ring-strong">
             <item.icon className="size-5 text-teal" />
             <p className="mt-2 text-sm">{item.label}</p>
             <p className="text-xs text-muted">{item.hint}</p>
@@ -167,7 +167,7 @@ export function Dashboard() {
                 key={tutorial.id}
                 to="/learn/$tutorialId"
                 params={{ tutorialId: tutorial.id }}
-                className="glass w-64 shrink-0 overflow-hidden rounded-2xl"
+                className="w-64 shrink-0 overflow-hidden rounded-2xl bg-raise shadow-float"
               >
                 <img src={tutorial.thumbnail} alt="" className="aspect-[3/2] w-full object-cover" />
                 <div className="p-3">
