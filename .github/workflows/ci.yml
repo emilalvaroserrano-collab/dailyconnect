@@ -1,0 +1,40 @@
+name: Build and verify Daily Connect
+
+on:
+  push:
+    branches:
+      - main
+      - feature/ai-masterplan-native-navigation
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install reproducibly from lockfile
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Vercel production build
+        run: npm run build
+      - name: Check Nitro Vercel build output
+        run: |
+          test -f .vercel/output/config.json
+          test -d .vercel/output/functions
+          test -d .vercel/output/static
+          node -e 'const f=require("./.vercel/output/config.json"); if (typeof f.version !== "number") process.exit(1); console.log("Vercel output format:",f.version)'
