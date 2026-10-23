@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "tanstack-start",
-  "installCommand": "npm ci --no-audit --no-fund",
+  "installCommand": "npm ci --fetch-retries=5 --fetch-retry-mintimeout=1000 --fetch-retry-maxtimeout=15000 --no-audit --no-fund",
   "buildCommand": "npm run build"
 }
