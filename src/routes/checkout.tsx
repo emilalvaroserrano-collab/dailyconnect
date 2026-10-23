@@ -86,7 +86,8 @@ function Checkout() {
         </p>
       ) : null}
       <section className="mx-auto max-w-lg px-5 py-8">
-        <h1 className="font-display text-4xl">Activate your account</h1>
+        <h1 className="font-display text-4xl">Activate AI MasterPlan</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">Daily Connect membership is ₱550 one-time. Pay your sponsor directly, then enter the activation code they provide to unlock the AI MasterPlan learning path.</p>
         <form
           className="mt-6 space-y-3"
           onSubmit={(event) => {
