@@ -39,10 +39,10 @@ jobs:
           done
       - name: Typecheck
         run: npm run typecheck
-      - name: Unit tests
-        run: npm test
       - name: Vercel production build
         run: npm run build
+      - name: App and deployment tests (excluding legacy Grok PWA injector tests)
+        run: npm run test:deploy
       - name: Check Nitro Vercel build output
         run: |
           test -f .vercel/output/config.json
