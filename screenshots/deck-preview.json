@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/deck",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 146,
+      "bodyTextHash": "bb1b4b12c5035a64f21ece78ec573afc9797a9ca46956c488e0a733885313839",
+      "bodyTextPrefix": "Daily Connect Welcome back Use the email or Google account you j",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/deck-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 146,
+      "bodyTextHash": "bb1b4b12c5035a64f21ece78ec573afc9797a9ca46956c488e0a733885313839",
+      "bodyTextPrefix": "Daily Connect Welcome back Use the email or Google account you j",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/deck-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/deck-preview.json"
+}

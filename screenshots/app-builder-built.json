@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 456,
+      "bodyTextHash": "66e10430ddaa0da1c0f183a32b4fbffb33f0c0648048961aee435b61878cd3e3",
+      "bodyTextPrefix": "Daily Connect Sign in Join Manila · one tool a day A new AI tool",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Daily Connect",
+      "hasCanvas": false,
+      "bodyTextLen": 456,
+      "bodyTextHash": "be046fa3f78af6e7cb6fbacf045dc2a217fbe116e1ee92c9502ede9351603fa2",
+      "bodyTextPrefix": "Daily Connect Sign in Join Manila · one tool a day A new AI tool",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

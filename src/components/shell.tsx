@@ -1,0 +1,223 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import {
+  Bell,
+  BookOpen,
+  Clapperboard,
+  Home,
+  LineChart,
+  Menu,
+  Radio,
+  Shield,
+  Sparkles,
+  Store,
+  UserRound,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { getNotices, readNotices } from "@/lib/connect.functions";
+import { useConnect } from "@/lib/connect";
+import { cn } from "@/lib/cn";
+import { SponsorBar } from "@/components/sponsor-bar";
+import type { Notice } from "@/lib/types";
+
+export function Logo({ compact = false }: { compact?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-fg">
+      <svg viewBox="0 0 32 32" className="size-8" aria-hidden>
+        <rect width="32" height="32" rx="8" fill="#122433" />
+        <circle cx="12.2" cy="16" r="5.1" fill="none" stroke="#2EE6C7" strokeWidth="2.4" />
+        <circle cx="19.8" cy="16" r="5.1" fill="none" stroke="#E8F4F2" strokeWidth="2.4" />
+      </svg>
+      {compact ? null : (
+        <span className="font-display text-lg leading-none">
+          Daily <span className="text-teal">Connect</span>
+        </span>
+      )}
+    </span>
+  );
+}
+
+export function Splash() {
+  return (
+    <main className="grid min-h-screen place-items-center bg-canvas">
+      <Logo />
+    </main>
+  );
+}
+
+export function Paywall() {
+  return (
+    <section className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-5 py-16">
+      <p className="text-sm text-teal">Membership</p>
+      <h1 className="mt-2 font-display text-4xl">The desk is locked.</h1>
+      <p className="mt-3 text-muted">
+        Pay ₱550 directly to your sponsor. They give you a code. The app does not take the money.
+      </p>
+      <Link
+        to="/checkout"
+        className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-teal px-6 font-medium text-ink"
+      >
+        Enter activation code
+      </Link>
+    </section>
+  );
+}
+
+const primary = [
+  { to: "/", label: "Home", icon: Home, exact: true },
+  { to: "/learn", label: "Learn", icon: BookOpen, exact: false },
+  { to: "/deck", label: "Deck", icon: Clapperboard, exact: false },
+  { to: "/studio", label: "Studio", icon: Sparkles, exact: false },
+] as const;
+
+const extra = [
+  { to: "/live", label: "Live", hint: "Schedule a selling stream", icon: Radio, exact: false },
+  { to: "/market", label: "Market", hint: "Products you can share", icon: Store, exact: false },
+  { to: "/creator", label: "Creator", hint: "Views and earnings", icon: LineChart, exact: false },
+  { to: "/wallet", label: "Wallet", hint: "Balance and payouts", icon: Wallet, exact: false },
+  { to: "/profile", label: "Profile", hint: "Your link and contacts", icon: UserRound, exact: false },
+  { to: "/moderate", label: "Moderate", hint: "Review the queue", icon: Shield, exact: false },
+] as const;
+
+const bottomTabs = primary.slice(0, 4);
+
+export function Shell({ children }: { children: ReactNode }) {
+  const { session, profile } = useConnect();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!session) return;
+    let cancel = false;
+    void getNotices({ data: { idToken: session.idToken } })
+      .then((result) => {
+        if (cancel) return;
+        setNotices(result.notifications);
+        setUnread(result.unread);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancel = true;
+    };
+  }, [pathname, session]);
+
+  const initial = (profile?.name || profile?.email || "M").charAt(0).toUpperCase();
+  const moreActive = extra.some((tab) => (tab.exact ? pathname === tab.to : pathname.startsWith(tab.to)));
+
+  useEffect(() => {
+    setMore(false);
+  }, [pathname]);
+
+  return (
+    <div className="app-frame relative text-fg">
+      <header className="relative z-20 flex shrink-0 flex-col border-b border-line bg-canvas/95 backdrop-blur">
+        <div className="flex items-center justify-between px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <Link to="/" aria-label="Home">
+          <Logo />
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="relative grid size-11 place-items-center rounded-full text-fg"
+            aria-label={unread ? `${unread} unread notices` : "Notices"}
+            onClick={() => setOpen((value) => !value)}
+          >
+            <Bell className="size-5" />
+            {unread > 0 ? <span className="absolute right-2 top-2 size-2 rounded-full bg-teal" /> : null}
+          </button>
+          <Link
+            to="/profile"
+            className="grid size-11 place-items-center rounded-full bg-surface font-medium text-teal"
+            aria-label="Profile"
+          >
+            {initial}
+          </Link>
+        </div>
+        {open ? (
+          <div className="glass absolute right-4 top-16 w-80 max-w-[calc(100vw-2rem)] rounded-2xl p-3">
+            <div className="mb-2 flex items-center justify-between px-1">
+              <p className="text-sm">Notices</p>
+              {unread > 0 && session ? (
+                <button
+                  type="button"
+                  className="text-sm text-teal"
+                  onClick={() => {
+                    void readNotices({ data: { idToken: session.idToken } }).then((next) => {
+                      setNotices(next);
+                      setUnread(0);
+                    });
+                  }}
+                >
+                  Mark read
+                </button>
+              ) : null}
+            </div>
+            {notices.length === 0 ? (
+              <p className="px-1 py-6 text-sm text-muted">Referrals and payouts show up here.</p>
+            ) : (
+              <ul className="max-h-80 space-y-2 overflow-auto">
+                {notices.map((notice) => (
+                  <li key={notice.id} className={cn("rounded-xl px-3 py-2", notice.read ? "opacity-60" : "bg-surface")}>
+                    <p className="text-sm">{notice.title}</p>
+                    <p className="text-sm text-muted">{notice.body}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : null}
+        </div>
+        <SponsorBar />
+      </header>
+      <div className="app-scroll">{children}</div>
+      <nav aria-label="Main" className="z-20 grid shrink-0 grid-cols-5 border-t border-line bg-canvas pb-[env(safe-area-inset-bottom)]">
+        {bottomTabs.map((tab) => (
+          <Link
+            key={tab.to}
+            to={tab.to}
+            activeOptions={{ exact: tab.exact }}
+            className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs text-muted transition-colors"
+            activeProps={{ className: "flex min-h-14 flex-col items-center justify-center gap-1 text-xs text-teal" }}
+          >
+            <tab.icon className="size-5" />
+            {tab.label}
+          </Link>
+        ))}
+        <button
+          type="button"
+          className={cn(
+            "flex min-h-14 flex-col items-center justify-center gap-1 text-xs",
+            moreActive || more ? "text-teal" : "text-muted",
+          )}
+          aria-expanded={more}
+          aria-label="More"
+          onClick={() => setMore((value) => !value)}
+        >
+          {more ? <X className="size-5" /> : <Menu className="size-5" />}
+          More
+        </button>
+      </nav>
+      {more ? (
+        <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 rounded-2xl border border-line bg-raise p-2 sm:left-auto sm:w-72">
+          {extra.map((tab) => (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-fg"
+            >
+              <tab.icon className="size-4 text-teal" />
+              <span>
+                <span className="block">{tab.label}</span>
+                <span className="block text-xs text-muted">{tab.hint}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}

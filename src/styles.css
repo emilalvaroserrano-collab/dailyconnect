@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --color-canvas: #071018;
+  --color-raise: #0c1a27;
+  --color-surface: #122433;
+  --color-fg: #e8f4f2;
+  --color-muted: #8ea6b3;
+  --color-line: #214056;
+  --color-teal: #2ee6c7;
+  --color-ink: #04221e;
+  --shadow-ring: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-ring-strong: 0 0 0 1px rgba(46, 230, 199, 0.45);
+}
+
+@layer base {
+  html {
+    background: #071018;
+    color: #e8f4f2;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    touch-action: pan-y;
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #071018;
+    color: #e8f4f2;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  p { text-wrap: pretty; }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) { cursor: pointer; }
+  input, select, textarea {
+    font-size: 16px;
+    color: inherit;
+  }
+  img, video {
+    max-width: 100%;
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid #2ee6c7;
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgba(46, 230, 199, 0.35);
+    color: #e8f4f2;
+  }
+  input[type="range"] { accent-color: #2ee6c7; }
+}
+
+.app-frame {
+  display: flex;
+  height: 100dvh;
+  max-height: 100dvh;
+  flex-direction: column;
+  overflow: hidden;
+  background: #071018;
+}
+
+.app-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.glass {
+  background: rgba(18, 36, 51, 0.78);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}

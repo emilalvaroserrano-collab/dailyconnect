@@ -1,0 +1,1 @@
+import{A as e}from"./connect-CZOfGI_6.js";import{t}from"./auth-panel-CJYgBB6n.js";var n=e();function r(){return(0,n.jsx)(t,{mode:`login`})}export{r as component};

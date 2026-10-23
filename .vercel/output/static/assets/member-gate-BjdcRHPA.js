@@ -1,0 +1,1 @@
+import{A as e,n as t}from"./connect-CZOfGI_6.js";import{c as n,o as r,s as i}from"./manila-BtOR4kaD.js";import{i as a}from"./index-Die8qKFH.js";var o=e();function s({children:e}){let{ready:s,session:c,profile:l}=t();return s?!c||!l?(0,o.jsx)(a,{to:`/login`}):(0,o.jsx)(i,{children:l.membershipStatus===`active`?e(c,l):(0,o.jsx)(r,{})}):(0,o.jsx)(n,{})}export{s as t};
