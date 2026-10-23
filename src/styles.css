@@ -155,6 +155,7 @@
   -webkit-overflow-scrolling: touch;
 }
 @media (min-width: 768px) {
+  .mobile-tabbar { display: none; }
   .mobile-sheet { max-height: 70dvh; padding-bottom: 1rem; }
 }
 .app-scroll { scroll-padding-bottom: 1rem; scrollbar-gutter: stable; }

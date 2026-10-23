@@ -39,10 +39,10 @@ export function LiveView({ session }: { session: Session }) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-6 md:px-8">
-      <p className="text-sm text-teal">Daily Connect Live</p>
-      <h1 className="font-display text-4xl">Schedule the sell</h1>
+      <p className="text-sm text-teal">Daily Connect · Creator Live</p>
+      <h1 className="font-display text-4xl">Plan a live session</h1>
       <p className="mt-2 text-sm text-muted">
-        Each platform is its own destination. Stream keys never come to this page. If a destination is not connected, the others are still checked — none of them go live until an official account is eligible.
+        Use this optional creator tool to plan demo streams, including walkthroughs of what you built in AI MasterPlan. This is a streaming planner, not the course's weekly Meet and Greet. Each platform is its own destination. Stream keys never come to this page. If a destination is not connected, the others are still checked — none of them go live until an official account is eligible.
       </p>
       <form
         className="mt-6 space-y-3"

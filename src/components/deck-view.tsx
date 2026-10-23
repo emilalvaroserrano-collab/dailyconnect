@@ -130,7 +130,7 @@ export function DeckView({ session, profile }: { session: Session; profile: User
               className="h-11 flex-1 rounded-full bg-raise px-4 text-left text-sm text-muted"
               onClick={() => setOpen(true)}
             >
-              Post a video
+              Share your learning
             </button>
             <button
               type="button"
@@ -144,7 +144,7 @@ export function DeckView({ session, profile }: { session: Session; profile: User
           {note && !open ? <p className="mt-2 text-sm text-muted">{note}</p> : null}
         </section>
         {posts.length === 0 ? (
-          <p className="px-4 py-16 text-center text-sm text-muted">No reels yet. Post the first video.</p>
+          <p className="px-4 py-16 text-center text-sm text-muted">No project clips yet. Share a short AI build demo or a learning milestone.</p>
         ) : (
           posts.map((post) => (
             <Reel
@@ -176,7 +176,7 @@ export function DeckView({ session, profile }: { session: Session; profile: User
                     idToken: session.idToken,
                     title,
                     caption,
-                    hashtags: "#DailyConnect",
+                    hashtags: "#DailyConnect #AIMasterPlan",
                     kind: "video",
                     mediaUrl,
                     posterUrl: meta.posterUrl,
@@ -202,12 +202,12 @@ export function DeckView({ session, profile }: { session: Session; profile: User
             }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-2xl">Upload video</h2>
+              <h2 className="font-display text-2xl">Share a project clip</h2>
               <button type="button" className="text-sm text-muted" onClick={() => setOpen(false)}>
                 Close
               </button>
             </div>
-            <p className="text-sm text-muted">Portrait clips under 58 seconds. {profile.name}.</p>
+            <p className="text-sm text-muted">Show what you built or learned in a portrait clip under 58 seconds. {profile.name}.</p>
             <label className="block text-sm">
               Title
               <input value={title} onChange={(event) => setTitle(event.target.value)} required className="mt-1 h-11 w-full rounded-xl border border-line bg-canvas px-3" />

@@ -39,10 +39,10 @@ export function StudioView({ session }: { session: Session }) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-6 md:px-8">
-      <p className="text-sm text-teal">AI Content Studio</p>
-      <h1 className="font-display text-4xl">Make the piece, then send it up</h1>
+      <p className="text-sm text-teal">Daily Connect · AI Content Studio</p>
+      <h1 className="font-display text-4xl">Create and share content</h1>
       <p className="mt-2 text-sm text-muted">
-        Image, caption, or a live script from an approved product. Video is a desk draft plus your own portrait clip — this desk does not invent a finished commercial unless the image service is configured. Nothing publishes until a person approves it.
+        Use AI to draft images, captions, and scripts for your learning journey or optional creator products. This workspace currently creates drafts from approved products. Video is a desk draft plus your own portrait clip — this desk does not invent a finished commercial unless the image service is configured. Nothing publishes until a person approves it.
       </p>
       <form
         className="mt-6 space-y-3"
